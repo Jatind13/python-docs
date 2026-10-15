@@ -1,6 +1,6 @@
-# Python, from the inside out
+# Python refresher
 
-An interactive Python reference: lessons you can run in the page, animations of how Python works, and challenges with hidden checks. No build step, no server: plain HTML, CSS and JavaScript.
+A short, interactive Python refresher: seven 10-minute pages with runnable code, challenges that check your answer, and a quick quiz each. No build step, no server: plain HTML, CSS and JavaScript.
 
 ## Open it on your computer
 
@@ -17,22 +17,21 @@ The first click on any **Run** button downloads the Python runtime (Pyodide, abo
 ## Folder map
 
 ```
-index.html                    landing page + course map
+index.html                    landing page + list of pages
 assets/
   site.css                    the whole design (light and dark)
-  lessons.js                  THE LESSON LIST: edit this when adding a lesson
-  site.js                     sidebar, "on this page", progress, theme, tabs, quizzes, terminal demo
-  runner.js                   Run buttons, challenges, bytecode explorer, REPL (real Python via Pyodide)
-  anim/python-pipeline.js     the pipeline and virtual-machine animations
-lessons/                      one HTML file per lesson
-templates/lesson-template.html   copy this to start a new lesson
+  lessons.js                  THE PAGE LIST: edit this when adding a page
+  site.js                     sidebar, "on this page", progress, theme, tabs, quizzes, checklists
+  runner.js                   Run buttons, challenges, REPL (real Python via Pyodide)
+lessons/                      one HTML file per page (01 to 07)
+templates/lesson-template.html   copy this to start a new page
 ```
 
-## Add a new lesson (3 steps)
+## Add a new page (3 steps)
 
 1. Copy `templates/lesson-template.html` to `lessons/<id>.html` (example: `lessons/08-comments.html`).
 2. In the new file, set `data-lesson="<id>"` on `<body>` to the same id and write your content.
-3. In `assets/lessons.js`, change that lesson's entry to `ready: true` (or add a new entry). The sidebar, course map, previous/next links and progress bar update by themselves.
+3. In `assets/lessons.js`, add an entry for it with `ready: true`. The sidebar, page list, previous/next links and progress bar update by themselves.
 
 ## Building blocks you can use in any lesson
 
@@ -41,12 +40,10 @@ templates/lesson-template.html   copy this to start a new lesson
 | Syntax-highlighted static code | `<pre><code class="py">...</code></pre>` |
 | A runnable, editable code box | `<div class="cell" data-cell data-title="Try it"><textarea class="src">code</textarea></div>` |
 | A challenge with a hidden check | a `cell` with `data-challenge="unique-id"` and a `<script type="text/plain" class="test">` containing `assert` lines. In the check, `_out` is everything printed and `_code` is the learner's source. Add `data-inputs='["Asha"]'` to feed `input()`. |
-| Bytecode / AST / token viewer | `<div data-explorer data-presets='[["Label","code"]]'></div>` |
 | A one-line-at-a-time REPL | `<div data-repl></div>` |
 | OS tabs (auto-selects the visitor's OS) | `<div class="tabs" data-tabs data-os>` with `.tablist` buttons and `.tabpanel` sections |
-| Terminal typing animation | `<div class="term" data-lines='[["cmd","python hello.py"],["out","Hello"]]'>` |
+| Checklist for tasks done on the learner's machine | `<label class="todo"><input type="checkbox" data-todo="id"><span>Step</span></label>` |
 | Quiz question | `<div class="quiz" data-answer="1" data-explain="..."> ... <button class="opt">` |
-| Flip cards | `<button class="flip" aria-pressed="false"><span class="q">..</span><span class="a">..</span></button>` |
 | Callouts | `.note`, `.tip`, `.warn` |
 
 ## Deploy with GitHub Pages (free, no server)
@@ -78,4 +75,4 @@ The `.nojekyll` file in this folder tells GitHub Pages to serve the files as the
 - **`input()` uses the browser's prompt dialog**, since there is no keyboard attached to a web page.
 - **Needs internet the first time** to download Pyodide from the jsDelivr CDN. To make the site fully offline you can self-host the Pyodide files in the repo and change `PYODIDE_URL` in `assets/runner.js`.
 - **Progress is stored in the visitor's browser** (`localStorage`). It does not sync between devices.
-- Bytecode shown by the explorer comes from Python 3.12 (the version inside Pyodide). Other Python versions print slightly different instructions.
+- The Python running in the page is 3.12 (the version inside Pyodide). Your local Python may be a newer version.

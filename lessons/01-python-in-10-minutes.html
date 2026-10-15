@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python in 10 minutes | Python refresher</title>
+<meta name="description" content="What Python is, why people use it, and how it runs your code.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="01-python-in-10-minutes">
+
+<article class="doc">
+  <p class="crumb">Getting started</p>
+  <h1>Python in 10 minutes</h1>
+  <p class="lede">What Python is, why it is worth using, and what happens when you run a program. Just the parts you need.</p>
+  <div class="meta"><span>10 min</span><span>2 challenges</span><span>3-question quiz</span></div>
+
+  <h2>What is Python?</h2>
+  <p>Python is a <b>high-level, general-purpose programming language</b> created by Guido van Rossum and first released in 1991. Its code reads close to plain English, so you spend your effort on the problem and not on syntax.</p>
+  <ul>
+    <li><b>High-level:</b> you do not manage memory or machine details yourself.</li>
+    <li><b>General-purpose:</b> websites, data, AI, automation, scripts, testing, tools.</li>
+    <li><b>Dynamically typed:</b> a variable can hold any type, and types are checked while the program runs.</li>
+    <li><b>Batteries included:</b> a large standard library, plus hundreds of thousands of packages on PyPI.</li>
+  </ul>
+  <p>Always use <b>Python 3</b>. Python 2 is long retired. Any recent 3.x release is fine for this refresher.</p>
+
+  <h2>Why Python?</h2>
+  <table>
+    <tr><th>Strengths</th><th>Trade-offs</th></tr>
+    <tr><td>Easy to read and write, so you ship faster</td><td>Slower than C, C++ or Go for CPU-heavy loops</td></tr>
+    <tr><td>Dominant in AI, data science and automation</td><td>Not the usual choice for mobile apps</td></tr>
+    <tr><td>Huge ecosystem: FastAPI, Django, pandas, PyTorch</td><td>Dynamic typing means some bugs only show at run time</td></tr>
+    <tr><td>Runs on Windows, macOS and Linux</td><td>One thread runs Python code at a time (the GIL), so use processes or async for some workloads</td></tr>
+  </table>
+  <p>The speed trade-off matters less than it sounds: libraries such as NumPy and PyTorch do the heavy work in compiled code, and Python just coordinates it.</p>
+
+  <h2>How Python runs your code</h2>
+  <p>The standard Python (called <b>CPython</b>) does two things when you run a file:</p>
+  <div class="flow" aria-label="From source file to output">
+    <div><b>hello.py</b>your source code</div><span>&rarr;</span>
+    <div><b>Compile</b>checks syntax, translates to bytecode</div><span>&rarr;</span>
+    <div class="hot"><b>Run</b>the Python virtual machine executes the bytecode</div><span>&rarr;</span>
+    <div><b>Output</b>what <code>print</code> shows</div>
+  </div>
+  <p><b>Bytecode</b> is a compact set of instructions for Python's own virtual machine, not for your CPU. You never see this step, and you do not need to manage it. Two practical consequences:</p>
+  <ul>
+    <li>A <b>syntax error</b> stops the whole file before anything runs, because the compile step fails first.</li>
+    <li>A <b>runtime error</b> (like dividing by zero) only stops the program at the line where it happens. Earlier lines already ran.</li>
+  </ul>
+  <p>See the first point for yourself. The first line is fine, but the second has a missing bracket:</p>
+  <div class="cell" data-cell data-title="Try it: a syntax error stops everything">
+<textarea class="src" spellcheck="false">
+print("This line is fine")
+print("This one is broken"
+</textarea>
+  </div>
+  <p>Nothing was printed, not even the good line. Now fix the missing bracket and run it again.</p>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="py-1" data-title="Challenge 1: Fix the syntax error">
+    <div class="task"><p>Fix the code so it prints both lines.</p></div>
+<textarea class="src" spellcheck="false">
+print("Python is readable")
+print("Python is popular"
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines() == ["Python is readable", "Python is popular"], "Both lines should print, exactly as written."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">print("Python is readable")
+print("Python is popular")</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="py-2" data-title="Challenge 2: Which Python is this?">
+    <div class="task"><p>Print only the <b>major version number</b> of the Python that is running. Hint: <code>sys.version_info.major</code>.</p></div>
+<textarea class="src" spellcheck="false">
+import sys
+# print the major version here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "3", "Print just the number, using sys.version_info.major. It should be 3."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import sys
+print(sys.version_info.major)</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: CPython compiles to bytecode first, then a virtual machine runs the bytecode.">
+    <p class="q">Which statement is most accurate for CPython?</p>
+    <button class="opt">It runs source code directly on the CPU</button>
+    <button class="opt">It compiles source to bytecode, then a virtual machine runs it</button>
+    <button class="opt">It compiles source straight to machine code</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: the compile step rejects the whole file, so no line runs.">
+    <p class="q">A script has a syntax error on line 10. What happens to lines 1 to 9?</p>
+    <button class="opt">They run, then Python stops at line 10</button>
+    <button class="opt">Only line 1 runs</button>
+    <button class="opt">None of them run</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: CPython is the standard implementation you download from python.org.">
+    <p class="q">What is CPython?</p>
+    <button class="opt">The standard Python implementation, written in C</button>
+    <button class="opt">A tool that converts Python to C code</button>
+    <button class="opt">A faster version of Python for AI only</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Python is a readable, general-purpose, dynamically typed language with a huge ecosystem.</li>
+    <li>It is slower than low-level languages, but libraries do heavy work in compiled code.</li>
+    <li>CPython compiles to bytecode, then a virtual machine runs it. Syntax errors happen before anything runs.</li>
+  </ul>
+  <p>Next: <a href="02-install-and-setup.html">install Python and set up your tools</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

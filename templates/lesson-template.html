@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- 1. Change the title and description -->
-<title>LESSON TITLE | Python, from the inside out</title>
+<title>LESSON TITLE | Python refresher</title>
 <meta name="description" content="One-sentence summary of the lesson.">
 <link rel="stylesheet" href="../assets/site.css">
 </head>
@@ -48,6 +48,19 @@ assert _out.strip() == "expected", "Message shown when the answer is wrong."
     <details><summary>Show solution</summary><pre><code class="py">print("expected")</code></pre></details>
   </div>
 
+  <!-- A checklist for things done on the learner's own machine (ticks are saved) -->
+  <label class="todo"><input type="checkbox" data-todo="NN-1"><span>Step to do locally</span></label>
+
+  <!-- A one-line-at-a-time Python prompt -->
+  <div data-repl></div>
+
+  <!-- OS tabs (auto-selects the visitor's OS) -->
+  <div class="tabs" data-tabs data-os>
+    <div class="tablist"><button data-tab="win">Windows</button><button data-tab="mac">macOS / Linux</button></div>
+    <div class="tabpanel" data-panel="win"><pre><code>python script.py</code></pre></div>
+    <div class="tabpanel" data-panel="mac"><pre><code>python3 script.py</code></pre></div>
+  </div>
+
   <!-- Callouts: .note (blue)  .tip (yellow)  .warn (red) -->
   <div class="tip"><p><b>Tip:</b> something useful.</p></div>
 
@@ -66,6 +79,5 @@ assert _out.strip() == "expected", "Message shown when the answer is wrong."
 <script src="../assets/lessons.js"></script>
 <script src="../assets/site.js"></script>
 <script src="../assets/runner.js"></script>
-<!-- Add ../assets/anim/python-pipeline.js only if the page uses the animations. -->
 </body>
 </html>

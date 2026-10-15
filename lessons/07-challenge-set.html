@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Challenge set | Python refresher</title>
+<meta name="description" content="Six mixed challenges covering everything in the refresher.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="07-challenge-set">
+
+<article class="doc">
+  <p class="crumb">The basics</p>
+  <h1>Challenge set</h1>
+  <p class="lede">Six mixed challenges on everything from pages 1 to 6. No new teaching: just use what you know. Each one is checked when you press <b>Check answer</b>.</p>
+  <div class="meta"><span>15 min</span><span id="score" class="score">0 of 6 solved</span></div>
+
+  <div class="cell" data-cell data-challenge="set-1" data-inputs='["Asha"]' data-title="1. Greeter">
+    <div class="task"><p>Ask for the user's name with <code>input()</code> and print <code>Hello, Asha!</code> (with whatever name was typed).</p></div>
+<textarea class="src" spellcheck="false">
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines()[-1] == "Hello, Asha!", "The last line should be exactly: Hello, Asha!"
+assert "input(" in _code, "Use input() to read the name."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">name = input("Name: ")
+print(f"Hello, {name}!")</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="set-2" data-title="2. Receipt">
+    <div class="task"><p>Using the two variables, print <code>Total: 750</code>. Let Python calculate the total.</p></div>
+<textarea class="src" spellcheck="false">
+price = 250
+quantity = 3
+# print the total here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "Total: 750", "The output should be exactly: Total: 750"
+assert "*" in _code, "Calculate the total with multiplication."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">price = 250
+quantity = 3
+print(f"Total: {price * quantity}")</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="set-3" data-title="3. Tab-separated table">
+    <div class="task"><p>With escape sequences, print exactly these two lines (a tab between the words):</p><pre><code>Name	Score
+Asha	92</code></pre></div>
+<textarea class="src" spellcheck="false">
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out == "Name\tScore\nAsha\t92\n", "Expected two lines, each with a tab between the two words."
+assert "\\t" in _code, "Use the \\t escape sequence for the tab."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">print("Name\tScore\nAsha\t92")</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="set-4" data-inputs='["30"]' data-title="4. Years to 100">
+    <div class="task"><p>Read an age with <code>input()</code> and print how many years are left until 100, in the form <code>70 years to go</code> for an age of 30.</p></div>
+<textarea class="src" spellcheck="false">
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines()[-1] == "70 years to go", "The last line should be exactly: 70 years to go"
+assert "int(" in _code, "Convert the input to a number with int()."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">input() returns text, so convert it before subtracting.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">age = int(input("Age: "))
+print(f"{100 - age} years to go")</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="set-5" data-title="5. Last name first">
+    <div class="task"><p>Using the two variables, print <code>Lovelace, Ada</code>.</p></div>
+<textarea class="src" spellcheck="false">
+first = "Ada"
+last = "Lovelace"
+# print the result here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "Lovelace, Ada", "The output should be exactly: Lovelace, Ada"
+assert "last" in _code.split("# print")[-1], "Build the output from the variables, not typed text."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">first = "Ada"
+last = "Lovelace"
+print(f"{last}, {first}")</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="set-6" data-title="6. Safe copy">
+    <div class="task"><p>Make <code>backup</code> an independent copy of <code>items</code>, then add <code>"milk"</code> to <code>items</code> only. After the code, <code>backup</code> must still be <code>["eggs", "bread"]</code>.</p></div>
+<textarea class="src" spellcheck="false">
+items = ["eggs", "bread"]
+# make the backup, then add "milk" to items
+</textarea>
+    <script type="text/plain" class="test">
+assert items == ["eggs", "bread", "milk"], "items should end up as eggs, bread, milk."
+assert backup == ["eggs", "bread"], "backup must stay as eggs, bread: it must be a separate copy."
+assert backup is not items, "backup and items must be different objects."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">items = ["eggs", "bread"]
+backup = items.copy()
+items.append("milk")</code></pre></details>
+  </div>
+
+  <h2>Where to go next</h2>
+  <p>You now have the foundations: running Python, input and output, text, and variables. The next topics in the roadmap are data types and operators, control flow, functions, then collections.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+<script>
+  (function () {
+    var ids = ["set-1", "set-2", "set-3", "set-4", "set-5", "set-6"];
+    function update() {
+      var n = ids.filter(function (id) { return window.Progress && window.Progress.getExtra("ch:" + id); }).length;
+      document.getElementById("score").textContent = n + " of " + ids.length + " solved";
+    }
+    document.addEventListener("DOMContentLoaded", update);
+    document.addEventListener("challenge-solved", update);
+  })();
+</script>
+</body>
+</html>

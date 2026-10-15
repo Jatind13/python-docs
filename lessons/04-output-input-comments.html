@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Output, input and comments | Python refresher</title>
+<meta name="description" content="print() options, f-strings, input() and comments.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="04-output-input-comments">
+
+<article class="doc">
+  <p class="crumb">The basics</p>
+  <h1>Output, input and comments</h1>
+  <p class="lede">Show things with <code>print()</code>, ask questions with <code>input()</code>, and leave notes with comments.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>print() in practice</h2>
+  <p><code>print()</code> takes any number of arguments and has two options worth knowing: <code>sep</code> (what goes between arguments, a space by default) and <code>end</code> (what goes after the last one, a newline by default).</p>
+  <div class="cell" data-cell data-title="Try it: sep and end">
+<textarea class="src" spellcheck="false">
+print("Name:", "Asha")            # arguments are joined by a space
+print("a", "b", "c", sep="-")     # a-b-c
+print("Loading", end="...")       # no newline after this one
+print("done")
+print()                           # an empty line
+</textarea>
+  </div>
+  <h3>f-strings: the clean way to mix text and values</h3>
+  <p>Put <code>f</code> before the opening quote and write variables or expressions inside <code>{ }</code>. A format after a colon controls how it looks, for example <code>:.2f</code> for two decimals.</p>
+  <div class="cell" data-cell data-title="Try it: f-strings">
+<textarea class="src" spellcheck="false">
+name = "Asha"
+score = 92
+price = 3.14159
+
+print(f"{name} scored {score}")
+print(f"Next score: {score + 1}")
+print(f"Price: {price:.2f}")
+</textarea>
+  </div>
+
+  <h2>input(): ask the user</h2>
+  <p><code>input("prompt")</code> pauses, waits for the user to type and press Enter, and returns what they typed <b>as a string, always</b>. Even if they type <code>30</code>, you get the text <code>"30"</code>. Convert it with <code>int()</code> or <code>float()</code> before doing math. (In this page, pressing Run shows a small dialog to type into.)</p>
+  <div class="cell" data-cell data-title="Try it: input is always text">
+<textarea class="src" spellcheck="false">
+age = input("How old are you? ")
+print(type(age))               # <class 'str'>
+print(int(age) + 1)            # convert first, then do math
+# print(age + 1)               # TypeError: can't add a number to text
+</textarea>
+  </div>
+  <div class="warn"><p>If the user types something that is not a number, <code>int("abc")</code> raises a <code>ValueError</code>. Handling that properly comes later with <code>try/except</code>.</p></div>
+
+  <h2>Comments</h2>
+  <p>A comment starts with <code>#</code> and runs to the end of the line. Python ignores it.</p>
+  <div class="cell" data-cell data-title="Try it: comments are ignored">
+<textarea class="src" spellcheck="false">
+# This whole line is a comment
+print("visible")      # an inline comment, after code
+# print("hidden")     # commented-out code does not run
+</textarea>
+  </div>
+  <ul>
+    <li><b>Explain why, not what.</b> <code>x = x + 1  # add one</code> is noise. <code># retry once because the API is flaky</code> is useful.</li>
+    <li><b>No block comments.</b> Python has no multi-line comment syntax. Use several <code>#</code> lines. In VS Code, select lines and press <kbd>Ctrl</kbd> + <kbd>/</kbd> to toggle comments.</li>
+    <li><b>Docstrings are different.</b> A triple-quoted string placed first inside a function or file documents it. It is a string, not a comment. You will meet them with functions.</li>
+  </ul>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="out-1" data-title="Challenge 1: Join with a dash">
+    <div class="task"><p>This prints <code>2026 10 15</code>. Change it to print <code>2026-10-15</code> using <code>sep</code>.</p></div>
+<textarea class="src" spellcheck="false">
+print(2026, 10, 15)
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "2026-10-15", "The output should be exactly: 2026-10-15"
+assert "sep" in _code, "Use the sep option of print()."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">print(2026, 10, 15, sep="-")</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="out-2" data-inputs='["30"]' data-title="Challenge 2: Next year's age">
+    <div class="task"><p>The age is already read as a number. Print <code>Next year you will be 31.</code> for an age of 30. Calculate it from the <code>age</code> variable.</p></div>
+<textarea class="src" spellcheck="false">
+age = int(input("How old are you? "))
+# print the sentence here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines()[-1] == "Next year you will be 31.", "The last line should be exactly: Next year you will be 31."
+assert "age+1" in _code.replace(" ", ""), "Calculate the new age from the age variable (age + 1)."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">age = int(input("How old are you? "))
+print(f"Next year you will be {age + 1}.")</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="out-3" data-title="Challenge 3: Use an f-string">
+    <div class="task"><p>Using the two variables and an f-string, print exactly <code>Asha scored 92 points</code>.</p></div>
+<textarea class="src" spellcheck="false">
+name = "Asha"
+score = 92
+# print the sentence here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "Asha scored 92 points", "The output should be exactly: Asha scored 92 points"
+assert 'f"' in _code or "f'" in _code, "Use an f-string (put f before the opening quote)."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">name = "Asha"
+score = 92
+print(f"{name} scored {score} points")</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="2" data-explain="Correct: input() always returns a string, so convert it with int() or float() first.">
+    <p class="q">The user types <code>5</code> into <code>x = input()</code>. What is <code>x</code>?</p>
+    <button class="opt">The number 5</button>
+    <button class="opt">It depends on what they typed</button>
+    <button class="opt">The string "5"</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: end=&quot;&quot; replaces the newline, so the next print continues on the same line.">
+    <p class="q">What does <code>print("a", end="")</code> do differently?</p>
+    <button class="opt">It does not add a newline after the text</button>
+    <button class="opt">It prints nothing</button>
+    <button class="opt">It adds two newlines</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: everything after # on that line is ignored.">
+    <p class="q">Which line is a comment?</p>
+    <button class="opt">// this is a comment</button>
+    <button class="opt"># this is a comment</button>
+    <button class="opt">-- this is a comment</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li><code>print(..., sep=" ", end="\n")</code>: multiple arguments, and control over what separates and ends the output.</li>
+    <li><b>f-strings</b> (<code>f"{name}"</code>) are the clean way to put values in text.</li>
+    <li><code>input()</code> always returns a string: convert with <code>int()</code> or <code>float()</code>.</li>
+    <li>Comments start with <code>#</code>. Write the <i>why</i>, not the <i>what</i>.</li>
+  </ul>
+  <p>Next: <a href="05-text-essentials.html">text essentials</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>
