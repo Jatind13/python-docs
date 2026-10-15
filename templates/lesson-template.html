@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 1. Change the title and description -->
+<title>LESSON TITLE | Python, from the inside out</title>
+<meta name="description" content="One-sentence summary of the lesson.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<!-- 2. data-lesson must equal the id in assets/lessons.js, and the file name (without .html) -->
+<body data-root="../" data-lesson="NN-lesson-id">
+
+<article class="doc">
+  <p class="crumb">Part name</p>
+  <h1>Lesson title</h1>
+  <p class="lede">One or two sentences: what the reader will be able to do after this lesson.</p>
+  <div class="meta"><span>15 min</span><span>Best after: previous lesson</span></div>
+
+  <div class="note"><p class="callout-title">What you will learn</p><p>Three short points.</p></div>
+
+  <!-- Each h2 becomes an entry in the "On this page" list automatically. -->
+  <h2>First idea</h2>
+  <p>Explain it in plain language. Prefer a concrete example over a definition.</p>
+
+  <!-- Static, syntax-highlighted code (not runnable) -->
+  <pre><code class="py">print("hello")</code></pre>
+
+  <!-- A runnable, editable code cell -->
+  <div class="cell" data-cell data-title="Try it: short title">
+<textarea class="src" spellcheck="false">
+print("edit me")
+</textarea>
+  </div>
+
+  <!-- A challenge with a hidden check.
+       In the check you can use: _out (everything printed), _code (the learner's source), and any variable the learner defined.
+       data-inputs feeds answers to input() during "Check answer". -->
+  <div class="cell" data-cell data-challenge="NN-1" data-inputs='["Asha"]' data-title="Challenge 1: name">
+    <div class="task"><p>What the learner must do.</p></div>
+<textarea class="src" spellcheck="false">
+# starter code
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "expected", "Message shown when the answer is wrong."
+    </script>
+    <details><summary>Hint</summary><p>A nudge.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">print("expected")</code></pre></details>
+  </div>
+
+  <!-- Callouts: .note (blue)  .tip (yellow)  .warn (red) -->
+  <div class="tip"><p><b>Tip:</b> something useful.</p></div>
+
+  <!-- Quiz: data-answer is the index (0, 1, 2...) of the correct option -->
+  <div class="quiz" data-answer="0" data-explain="Why it is right.">
+    <p class="q">Question?</p>
+    <button class="opt">Right answer</button>
+    <button class="opt">Wrong answer</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul><li>Three to five bullets.</li></ul>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+<!-- Add ../assets/anim/python-pipeline.js only if the page uses the animations. -->
+</body>
+</html>

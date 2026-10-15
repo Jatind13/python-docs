@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your first code | Python, from the inside out</title>
+<meta name="description" content="Run your first Python program: the REPL, scripts, reading errors, and hands-on challenges you can run in the page.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="06-your-first-code">
+
+<article class="doc">
+  <p class="crumb">Getting started</p>
+  <h1>Your first code</h1>
+  <p class="lede">Python is easiest to understand by using it. In the next 20 minutes you will run code in this page, talk to Python one line at a time, run a real script from a terminal, and learn to read the errors it gives you.</p>
+  <div class="meta"><span>20 min</span><span>No install needed for this lesson</span><span>6 runnable examples, 4 challenges</span></div>
+
+  <div class="note">
+    <p class="callout-title">What you will learn</p>
+    <p>Three ways to run Python, what <code>print()</code> is made of, how the REPL works, how to run a <code>.py</code> file, and how to read a traceback.</p>
+  </div>
+
+  <h2>Three ways to run Python</h2>
+  <table>
+    <tr><th>Way</th><th>What it is</th><th>Best for</th></tr>
+    <tr><td>The REPL</td><td>An interactive prompt (<code>&gt;&gt;&gt;</code>). You type one line, Python answers immediately. REPL stands for Read, Evaluate, Print, Loop.</td><td>Quick experiments and checking how something behaves</td></tr>
+    <tr><td>A script</td><td>A text file ending in <code>.py</code> that Python runs from top to bottom.</td><td>Real programs. This is what you will write most of the time.</td></tr>
+    <tr><td>An editor or notebook</td><td>VS Code, PyCharm or Jupyter run the same Python for you from a friendly interface.</td><td>Daily development. We set up VS Code in a later lesson.</td></tr>
+  </table>
+  <p>On this page, the code boxes run real Python (CPython 3.12) inside your browser, so you can start right now.</p>
+
+  <h2>Run your first program</h2>
+  <p>Press <b>Run</b>. You can also edit the text first and press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> (<kbd>Cmd</kbd> + <kbd>Enter</kbd> on Mac). The first run takes a few seconds because Python is being loaded into the page.</p>
+  <div class="cell" data-cell data-title="Try it: Hello, world">
+<textarea class="src" spellcheck="false">
+print("Hello, world!")
+</textarea>
+  </div>
+
+  <h3>Anatomy of print()</h3>
+  <p>Click each part to see what it does.</p>
+  <div class="anat">
+    <div class="anat-code" role="group" aria-label="Parts of the print call">
+      <button aria-pressed="false" data-info="<b>print</b> is the name of a <b>built-in function</b>, a ready-made tool that comes with Python. Names are case-sensitive: <code>Print</code> is a different name and would give a <code>NameError</code>.">print</button>
+      <button aria-pressed="false" data-info="<b>(</b> opens the <b>call</b>. Writing a function name followed by parentheses means &quot;run it now&quot;. Whatever you put inside the parentheses is handed to the function. These values are called <b>arguments</b>.">(</button>
+      <button aria-pressed="false" data-info="<b>&quot;Hello, world!&quot;</b> is a <b>string literal</b>: text written directly in the code. The quotes tell Python where the text starts and ends. The quotes are <b>not</b> printed. Single quotes work too.">"Hello, world!"</button>
+      <button aria-pressed="false" data-info="<b>)</b> closes the call. Every opening parenthesis needs a closing one, or Python raises a <code>SyntaxError</code> before running anything.">)</button>
+    </div>
+    <p class="anat-info">Pick a part above.</p>
+  </div>
+
+  <p>Two things <code>print()</code> does that are easy to miss: it adds a newline at the end, and it can take several arguments, separated by commas. Try changing the code below.</p>
+  <div class="cell" data-cell data-title="Try it: several arguments">
+<textarea class="src" spellcheck="false">
+print("Python", "is", "fun")
+print("Line two starts on a new line")
+print(2 + 3)
+</textarea>
+  </div>
+  <div class="tip"><p><b>Notice:</b> <code>print("2 + 3")</code> (with quotes) prints the text <code>2 + 3</code>, while <code>print(2 + 3)</code> (no quotes) does the math and prints <code>5</code>. Quotes mean &quot;this is text&quot;.</p></div>
+
+  <h2>Talk to Python: the REPL</h2>
+  <p>In a terminal you start the REPL by typing <code>python</code> (or <code>python3</code>). Here is a one-line-at-a-time version to play with. Python prints the value of an expression automatically, which is why you do not need <code>print()</code> here.</p>
+  <div data-repl></div>
+  <p>Things to try, one at a time: <code>2 + 3</code>, <code>7 * 6</code>, <code>10 / 4</code>, <code>10 // 4</code>, <code>2 ** 10</code>, <code>"ha" * 3</code>, <code>len("python")</code>, then <code>name = "Asha"</code> followed by <code>name</code>. Use the up arrow to bring back a previous line.</p>
+  <div class="note"><p>This REPL handles one line at a time. In a real terminal, blocks such as <code>if</code> or <code>def</code> continue onto lines starting with <code>...</code>. To leave a real REPL, type <code>exit()</code>, or press <kbd>Ctrl</kbd> + <kbd>D</kbd> (macOS/Linux) or <kbd>Ctrl</kbd> + <kbd>Z</kbd> then <kbd>Enter</kbd> (Windows).</p></div>
+
+  <h2>Run a script from the terminal</h2>
+  <p>Once Python is installed (the next lessons cover it), the workflow is always the same: write a file, then ask Python to run it.</p>
+  <ol>
+    <li>Create a file named <code>hello.py</code> containing <code>print("Hello, world!")</code>.</li>
+    <li>Open a terminal in the folder that contains the file.</li>
+    <li>Run it with the command for your system.</li>
+  </ol>
+  <div class="tabs" data-tabs data-os>
+    <div class="tablist"><button data-tab="win">Windows</button><button data-tab="mac">macOS</button><button data-tab="linux">Linux</button></div>
+    <div class="tabpanel" data-panel="win">
+      <div class="term" data-lines='[["cmd","python --version"],["out","Python 3.12.3"],["cmd","python hello.py"],["out","Hello, world!"]]'><div class="term-h"><i></i><i></i><i></i><span>PowerShell</span><button>Replay</button></div><div class="term-b"></div></div>
+      <p>On Windows, <code>py hello.py</code> also works. The <code>py</code> launcher is installed by the official installer and picks a Python version for you.</p>
+    </div>
+    <div class="tabpanel" data-panel="mac">
+      <div class="term" data-lines='[["cmd","python3 --version"],["out","Python 3.12.3"],["cmd","python3 hello.py"],["out","Hello, world!"]]'><div class="term-h"><i></i><i></i><i></i><span>Terminal</span><button>Replay</button></div><div class="term-b"></div></div>
+      <p>On macOS, use <code>python3</code>. Plain <code>python</code> may not exist, or may point to something else, depending on how Python was installed.</p>
+    </div>
+    <div class="tabpanel" data-panel="linux">
+      <div class="term" data-lines='[["cmd","python3 --version"],["out","Python 3.12.3"],["cmd","python3 hello.py"],["out","Hello, world!"]]'><div class="term-h"><i></i><i></i><i></i><span>bash</span><button>Replay</button></div><div class="term-b"></div></div>
+      <p>On Linux, use <code>python3</code>. The version printed will match what your system has installed.</p>
+    </div>
+  </div>
+  <div class="warn"><p><b>Common problems.</b> <code>python: command not found</code> or &quot;is not recognized&quot; means Python is not installed or not on your PATH. <code>can't open file ... No such file</code> means your terminal is in a different folder than <code>hello.py</code>. We fix both properly in the install lesson. The terminal animations above show example output only; they are not running on your machine.</p></div>
+
+  <h2>Read the error, it is trying to help</h2>
+  <p>Everyone's code breaks. Python's error messages are specific, and learning to read them is a core skill. Run each version and read the last line first, then the line number.</p>
+  <div class="cell" data-cell data-title="Break it: NameError (a typo in a name)">
+<textarea class="src" spellcheck="false">
+print("Starting")
+Print("Done")
+</textarea>
+  </div>
+  <div class="cell" data-cell data-title="Break it: SyntaxError (a missing bracket)">
+<textarea class="src" spellcheck="false">
+print("Starting"
+print("Done")
+</textarea>
+  </div>
+  <div class="cell" data-cell data-title="Break it: ZeroDivisionError (valid code, impossible math)">
+<textarea class="src" spellcheck="false">
+print("Before")
+print(10 / 0)
+print("After")
+</textarea>
+  </div>
+  <table>
+    <tr><th>Error</th><th>When it appears</th><th>What it means</th></tr>
+    <tr><td><code>SyntaxError</code></td><td>Before anything runs</td><td>The code is not valid Python grammar: nothing ran at all.</td></tr>
+    <tr><td><code>NameError</code></td><td>While running</td><td>You used a name Python does not know (often a typo or wrong capital letter).</td></tr>
+    <tr><td><code>ZeroDivisionError</code></td><td>While running</td><td>The code is valid, but this operation is impossible. Lines before it did run (&quot;Before&quot; printed).</td></tr>
+  </table>
+  <p>Notice the difference: a syntax error stops everything, while a runtime error only stops the program at the failing line. That difference comes from how Python reads your file, which we cover in <a href="07-how-python-works.html">How Python works</a>.</p>
+
+  <h2>A quick preview: asking a question</h2>
+  <p>The function <code>input()</code> pauses and waits for the user to type something, then gives it back as text. When you press Run, your browser shows a small dialog for the typing. We cover <code>input()</code> properly in a later lesson.</p>
+  <div class="cell" data-cell data-title="Try it: input()">
+<textarea class="src" spellcheck="false">
+name = input("What is your name? ")
+print("Nice to meet you,", name)
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <p>Edit the code, press <b>Run</b> to see what happens, then <b>Check answer</b>. Your solved challenges are remembered on this device.</p>
+
+  <div class="cell" data-cell data-challenge="first-1" data-title="Challenge 1: Say hello to Python">
+    <div class="task"><p>Change the program so it prints exactly <code>Hello, Python!</code></p></div>
+<textarea class="src" spellcheck="false">
+print("Hello, world!")
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "Hello, Python!", "The output should be exactly: Hello, Python!"
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">print("Hello, Python!")</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="first-2" data-title="Challenge 2: Fix the bug">
+    <div class="task"><p>This code is supposed to print <code>It works!</code> but it has <b>two</b> mistakes. Find and fix both.</p></div>
+<textarea class="src" spellcheck="false">
+Print("It works!"
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "It works!", "The output should be exactly: It works!"
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Look at the capital letter on the function name, and count the parentheses.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">print("It works!")</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="first-3" data-title="Challenge 3: Python as a calculator">
+    <div class="task"><p>Print how many seconds there are in one day (24 hours, 60 minutes, 60 seconds). Let Python do the multiplication: do not type the final number yourself.</p></div>
+<textarea class="src" spellcheck="false">
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "86400", "The program should print 86400."
+assert "*" in _code, "Use multiplication (*) so Python does the math instead of typing 86400."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">print(24 * 60 * 60)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="first-4" data-inputs='["Asha"]' data-title="Challenge 4 (bonus): A friendly greeter">
+    <div class="task"><p>The first line asks for a name. Add a line that prints <code>Nice to meet you, </code> followed by the name and an exclamation mark. For the name Asha it must print exactly <code>Nice to meet you, Asha!</code></p><p><b>Hint:</b> <code>print("a", name)</code> puts a space between its arguments, but you want no space before the <code>!</code>. Look up <code>sep=""</code>, or join text with <code>+</code>.</p></div>
+<textarea class="src" spellcheck="false">
+name = input("What is your name? ")
+# print the greeting below
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines()[-1] == "Nice to meet you, Asha!", "The last line should be exactly: Nice to meet you, Asha!"
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">name = input("What is your name? ")
+print("Nice to meet you, " + name + "!")</code></pre></details>
+  </div>
+
+  <h2>Check yourself</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: on macOS and Linux the command is usually python3. On Windows, python or py.">
+    <p class="q">Which command runs <code>hello.py</code> on macOS or Linux?</p>
+    <button class="opt">run hello.py</button>
+    <button class="opt">python3 hello.py</button>
+    <button class="opt">hello.py --python</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: a syntax error is found before execution, so none of the program's lines run.">
+    <p class="q">A program has a <code>SyntaxError</code> on its last line. What happens to the print calls above it?</p>
+    <button class="opt">They run, then Python stops at the last line</button>
+    <button class="opt">Only the first one runs</button>
+    <button class="opt">None of them run, because Python rejects the whole file first</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: without quotes, 2 + 3 is an expression that Python evaluates to 5.">
+    <p class="q">What does <code>print(2 + 3)</code> print?</p>
+    <button class="opt">5</button>
+    <button class="opt">2 + 3</button>
+    <button class="opt">An error</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>You can run Python as a <b>REPL</b> (one line at a time) or as a <b>script</b> (<code>python3 hello.py</code>).</li>
+    <li><code>print(...)</code> is a function call: a name, parentheses and arguments. Text needs quotes. Names are case-sensitive.</li>
+    <li>A <b>SyntaxError</b> stops everything before it runs. A <b>runtime error</b> stops the program at the failing line.</li>
+    <li>Read an error from the <b>last line</b> upwards: the type and message, then the file and line number.</li>
+  </ul>
+  <p>Next, find out what Python actually does between you pressing run and text appearing: <a href="07-how-python-works.html">How Python works</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>
