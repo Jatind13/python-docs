@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memory and garbage collection | Python refresher</title>
+<meta name="description" content="How Python stores values as objects, how references and reference counts work, and how garbage collection frees memory.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="10-memory-and-garbage-collection">
+
+<article class="doc">
+  <p class="crumb">Data and memory</p>
+  <h1>Memory and garbage collection</h1>
+  <p class="lede">How values live in memory, what a reference count is, and how Python cleans up objects you no longer use, without you doing anything.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Everything is an object</h2>
+  <p>Every value you create, whether a number, a string, a list or a dictionary, is an <b>object</b> stored in memory. Each object has three things:</p>
+  <ul>
+    <li><b>Identity:</b> a unique id, shown by <code>id()</code>. It never changes during the object's life.</li>
+    <li><b>Type:</b> what kind of object it is, from <code>type()</code>.</li>
+    <li><b>Value:</b> its content. For mutable objects this can change, for immutable ones it cannot.</li>
+  </ul>
+  <p>Variable names are only <b>references</b>: labels that point to objects. Containers such as lists, tuples, dicts and sets also hold <i>references</i> to their items, not copies of them. That one idea explains most of Python's behaviour, including the aliasing you saw earlier.</p>
+
+  <h2>Reference counting</h2>
+  <p>Each object keeps a count of how many references point at it. Assigning a name, putting it in a list, or passing it around adds a reference. Deleting a name or reassigning it removes one. <span class="hl">When the count reaches zero, nobody can reach the object any more, so Python frees its memory immediately.</span></p>
+  <p>Watch it happen. Use the three examples: plain names, a list holding references, and a cycle.</p>
+  <div class="viz wide" data-memory></div>
+
+  <h3>See a reference count yourself</h3>
+  <p><code>sys.getrefcount(x)</code> returns the count. It always shows <b>one more</b> than you expect, because passing <code>x</code> to the function creates a temporary reference.</p>
+  <div class="cell" data-cell data-title="Try it: counting references">
+<textarea class="src" spellcheck="false">
+import sys
+
+x = [1, 2, 3]
+print(sys.getrefcount(x))   # 2: the name x + the temporary argument
+y = x
+print(sys.getrefcount(x))   # 3: a second name
+del y
+print(sys.getrefcount(x))   # 2 again
+
+items = [x, x]              # a list holds references too
+print(sys.getrefcount(x))   # 4: x, two list slots, the argument
+</textarea>
+  </div>
+  <div class="note"><p><code>del y</code> removes the <b>name</b> <code>y</code>. It does not delete the object. The object is only freed when its count reaches zero.</p></div>
+
+  <h2>Garbage collection</h2>
+  <p>&quot;Garbage collection&quot; is automatic memory cleanup. CPython does it in two layers:</p>
+  <ol>
+    <li><b>Reference counting</b> frees most objects the instant their count hits zero. This is why memory is usually released right away.</li>
+    <li><b>The cyclic garbage collector</b> handles the one case counting cannot: objects that refer to each other. In a cycle, every object keeps the other's count above zero, so none reaches zero. The collector periodically looks for groups of objects that can only be reached from each other and frees them.</li>
+  </ol>
+  <div class="cell" data-cell data-title="Try it: a cycle that needs the collector">
+<textarea class="src" spellcheck="false">
+import gc
+
+gc.collect()          # clear out anything left over first
+a = []
+a.append(a)           # a list that contains itself: a cycle
+del a                 # the name is gone, but the list still refers to itself
+print(gc.collect())   # 1: the collector found and freed the unreachable list
+</textarea>
+  </div>
+  <p>You almost never need to call <code>gc.collect()</code> yourself. What matters in practice:</p>
+  <ul>
+    <li>You do not free memory manually in Python. Let names go out of scope or reassign them.</li>
+    <li>Memory problems usually come from <b>references you forgot about</b>, such as a global list that keeps growing or a cache that never empties. Anything still referenced is never freed.</li>
+    <li>For large data, drop references you no longer need (<code>del big</code> or reassign it) so memory can be released.</li>
+  </ul>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="mem-1" data-title="Challenge 1: Add a reference">
+    <div class="task"><p>Give the same list a second name so that <code>sys.getrefcount(data)</code> prints <code>3</code>.</p></div>
+<textarea class="src" spellcheck="false">
+import sys
+data = [1, 2, 3]
+# give the same list a second name here
+print(sys.getrefcount(data))
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "3", "The count should print 3: the name data, your new reference, and the temporary argument."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import sys
+data = [1, 2, 3]
+other = data
+print(sys.getrefcount(data))</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="mem-2" data-title="Challenge 2: Remove a reference">
+    <div class="task"><p>Remove <b>one</b> name so that the final line prints <code>2</code> instead of <code>3</code>.</p></div>
+<textarea class="src" spellcheck="false">
+import sys
+a = [1, 2, 3]
+b = a
+# remove one name here
+print(sys.getrefcount(a))
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "2", "The final line should print 2. Remove one of the names with del."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import sys
+a = [1, 2, 3]
+b = a
+del b
+print(sys.getrefcount(a))</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="mem-3" data-title="Challenge 3: Free a cycle">
+    <div class="task"><p>The list below refers to itself. After deleting the name, print the number returned by <code>gc.collect()</code>. It should be at least <code>1</code>.</p></div>
+<textarea class="src" spellcheck="false">
+import gc
+gc.collect()
+a = []
+a.append(a)
+del a
+# print the number of objects gc.collect() freed
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().isdigit() and int(_out.strip()) >= 1, "Print the number returned by gc.collect(). It should be at least 1."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import gc
+gc.collect()
+a = []
+a.append(a)
+del a
+print(gc.collect())</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="0" data-explain="Correct: when the count reaches zero, nothing can reach the object, so it is freed immediately.">
+    <p class="q">What happens when an object's reference count reaches zero?</p>
+    <button class="opt">Python frees the object right away</button>
+    <button class="opt">Nothing until the program ends</button>
+    <button class="opt">Python raises an error</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: del removes the name. The object is freed only if that was its last reference.">
+    <p class="q">What does <code>del x</code> do?</p>
+    <button class="opt">Always frees the object x points to</button>
+    <button class="opt">Sets the object to None</button>
+    <button class="opt">Removes the name x, and the object is freed only if no references remain</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: in a cycle each object keeps the other's count above zero, so the cyclic collector is needed.">
+    <p class="q">Why does Python need a cyclic garbage collector as well as reference counting?</p>
+    <button class="opt">Reference counting is too slow</button>
+    <button class="opt">Objects that refer to each other never reach a count of zero</button>
+    <button class="opt">Strings cannot be reference counted</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Every value is an object with an identity, a type and a value. Names and containers hold <b>references</b> to objects.</li>
+    <li>Each object has a <b>reference count</b>. At zero, Python frees it immediately.</li>
+    <li><code>del x</code> removes a name, not necessarily the object.</li>
+    <li>The <b>cyclic garbage collector</b> frees objects that only refer to each other. You rarely call it yourself.</li>
+    <li>Memory issues usually come from forgotten references, not from missing frees.</li>
+  </ul>
+  <p>That wraps up the fundamentals. More pages are on the way, including operators, control flow, functions and collections in depth.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+<script src="../assets/anim/memory.js"></script>
+</body>
+</html>

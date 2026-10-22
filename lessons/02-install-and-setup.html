@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install and set up | Python refresher</title>
+<meta name="description" content="Install Python, create a virtual environment, and set up VS Code.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="02-install-and-setup">
+
+<article class="doc">
+  <p class="crumb">Getting started</p>
+  <h1>Install and set up</h1>
+  <p class="lede">Get Python on your machine, isolate each project in a virtual environment, and set up VS Code so everything just works.</p>
+  <div class="meta"><span>10 min</span><span>Done on your own computer</span><span>Checklist + quiz</span></div>
+
+  <h2>1. Install Python</h2>
+  <p>Download the latest Python 3 from <a href="https://www.python.org/downloads/" rel="noopener">python.org/downloads</a>, or use your system's package manager.</p>
+  <div class="tabs" data-tabs data-os>
+    <div class="tablist"><button data-tab="win">Windows</button><button data-tab="mac">macOS</button><button data-tab="linux">Linux</button></div>
+    <div class="tabpanel" data-panel="win">
+      <p>Run the installer from python.org. On the first screen, <b>tick &quot;Add python.exe to PATH&quot;</b> before clicking Install. This is the step people miss, and it causes &quot;python is not recognized&quot; later. Then check it:</p>
+      <pre><code>python --version
+python -m pip --version</code></pre>
+      <p>If <code>python</code> is not found, try <code>py --version</code>. The <code>py</code> launcher comes with the installer.</p>
+    </div>
+    <div class="tabpanel" data-panel="mac">
+      <p>Run the installer from python.org, or if you use Homebrew run <code>brew install python</code>. On macOS the command is <code>python3</code>:</p>
+      <pre><code>python3 --version
+python3 -m pip --version</code></pre>
+    </div>
+    <div class="tabpanel" data-panel="linux">
+      <p>Most distributions include Python 3. On Debian or Ubuntu, make sure the venv and pip parts are installed too:</p>
+      <pre><code>sudo apt update
+sudo apt install python3 python3-venv python3-pip
+python3 --version</code></pre>
+    </div>
+  </div>
+
+  <h2>2. Create a virtual environment</h2>
+  <p>A <b>virtual environment</b> (venv) is a private folder of packages for one project. Without it, every project shares one set of packages, and upgrading a library for one project can break another. <span class="hl">Make one venv per project.</span></p>
+  <p>From inside your project folder:</p>
+  <div class="tabs" data-tabs data-os>
+    <div class="tablist"><button data-tab="win">Windows</button><button data-tab="mac">macOS / Linux</button></div>
+    <div class="tabpanel" data-panel="win">
+      <pre><code>python -m venv .venv
+.venv\Scripts\Activate.ps1        # PowerShell
+.venv\Scripts\activate.bat        # Command Prompt (cmd)</code></pre>
+      <p>If PowerShell refuses to run the script, run this once and try again: <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>.</p>
+    </div>
+    <div class="tabpanel" data-panel="mac">
+      <pre><code>python3 -m venv .venv
+source .venv/bin/activate</code></pre>
+    </div>
+  </div>
+  <p>When it is active, your terminal prompt starts with <code>(.venv)</code>, and <code>python</code> and <code>pip</code> now refer to this project's private copies. The day-to-day commands:</p>
+  <pre><code>python -m pip install requests              # install a package into this venv
+python -m pip freeze > requirements.txt     # save the exact versions
+python -m pip install -r requirements.txt   # recreate the environment elsewhere
+deactivate                                  # leave the venv</code></pre>
+  <div class="tip"><p>Add <code>.venv/</code> to your <code>.gitignore</code>. Commit <code>requirements.txt</code>, never the venv folder itself. Use <code>python -m pip</code> instead of plain <code>pip</code> so you are sure which Python the package goes to.</p></div>
+
+  <h2>3. Set up VS Code</h2>
+  <ol>
+    <li>Install <a href="https://code.visualstudio.com/" rel="noopener">VS Code</a>.</li>
+    <li>Open the Extensions panel (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd>) and install <b>Python</b> by Microsoft. It brings code completion and debugging with it.</li>
+    <li>Use <b>File, Open Folder</b> to open your project folder (open the folder, not a single file).</li>
+    <li>Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, run <b>Python: Select Interpreter</b>, and choose the one inside <code>.venv</code>. VS Code often offers this automatically.</li>
+    <li>Create <code>hello.py</code>, then click the <b>Run</b> triangle at the top right, or run it in the terminal. New terminals in VS Code activate the venv for you.</li>
+  </ol>
+  <p>Two habits worth building now: click in the gutter next to a line number to set a <b>breakpoint</b> and press <kbd>F5</kbd> to debug, and optionally install the <b>Ruff</b> extension for fast linting and formatting.</p>
+
+  <h2>Do it on your machine</h2>
+  <p>These steps cannot run in the browser, so tick them off as you go. Your ticks are saved on this device.</p>
+  <label class="todo"><input type="checkbox" data-todo="setup-1"><span>Installed Python 3, and <code>python --version</code> (or <code>python3 --version</code>) prints a 3.x version</span></label>
+  <label class="todo"><input type="checkbox" data-todo="setup-2"><span>Created a project folder and a venv inside it with <code>python -m venv .venv</code></span></label>
+  <label class="todo"><input type="checkbox" data-todo="setup-3"><span>Activated the venv and saw <code>(.venv)</code> in the prompt</span></label>
+  <label class="todo"><input type="checkbox" data-todo="setup-4"><span>Installed a package (for example <code>requests</code>) and saved <code>requirements.txt</code></span></label>
+  <label class="todo"><input type="checkbox" data-todo="setup-5"><span>Installed VS Code and the Python extension</span></label>
+  <label class="todo"><input type="checkbox" data-todo="setup-6"><span>Selected the <code>.venv</code> interpreter in VS Code</span></label>
+  <label class="todo"><input type="checkbox" data-todo="setup-7"><span>Ran <code>hello.py</code> from VS Code with <code>print("Hello")</code></span></label>
+  <p style="margin-top:10px">To confirm you are really using the venv, run this in VS Code. The path should contain <code>.venv</code>:</p>
+  <pre><code class="py">import sys
+print(sys.executable)</code></pre>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="0" data-explain="Correct: each project gets its own packages, so versions never clash.">
+    <p class="q">Why use a virtual environment per project?</p>
+    <button class="opt">Each project keeps its own package versions, so projects do not break each other</button>
+    <button class="opt">It makes Python run faster</button>
+    <button class="opt">It is required before Python will start</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: -m venv runs the venv module, and .venv is the folder it creates.">
+    <p class="q">Which command creates a venv in a folder called <code>.venv</code>?</p>
+    <button class="opt">python install venv .venv</button>
+    <button class="opt">python -m venv .venv</button>
+    <button class="opt">pip create .venv</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: VS Code needs to know which Python (and therefore which packages) to use.">
+    <p class="q">What does &quot;Python: Select Interpreter&quot; do in VS Code?</p>
+    <button class="opt">Installs a new Python version</button>
+    <button class="opt">Formats your code</button>
+    <button class="opt">Chooses which Python (for example your venv) VS Code uses for your project</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Install Python 3 (tick &quot;Add to PATH&quot; on Windows) and verify with <code>--version</code>.</li>
+    <li>One venv per project: create with <code>python -m venv .venv</code>, activate, then <code>python -m pip install</code>.</li>
+    <li>In VS Code: install the Python extension, open the folder, and select the <code>.venv</code> interpreter.</li>
+  </ul>
+  <p>Next: <a href="03-first-program.html">your first program</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

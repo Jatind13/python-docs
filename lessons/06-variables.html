@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variables | Python refresher</title>
+<meta name="description" content="What variables are, naming rules, and how they work in memory.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="06-variables">
+
+<article class="doc">
+  <p class="crumb">The basics</p>
+  <h1>Variables</h1>
+  <p class="lede">What a variable really is in Python, how to name one, and what happens in memory when you assign.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>What a variable is</h2>
+  <p>A variable is a <b>name that refers to a value</b>. You create one by assigning with <code>=</code>. There is no declaration, and no type to write: the type belongs to the value, not the name.</p>
+  <div class="cell" data-cell data-title="Try it: assignment and types">
+<textarea class="src" spellcheck="false">
+count = 3
+print(count, type(count))      # 3 <class 'int'>
+
+count = "three"                # the same name can refer to a different type
+print(count, type(count))
+
+a, b = 1, 2                    # assign several at once
+a, b = b, a                    # swap without a temporary variable
+print(a, b)
+</textarea>
+  </div>
+  <h3>Naming rules</h3>
+  <table>
+    <tr><th>Rule</th><th>OK</th><th>Not OK</th></tr>
+    <tr><td>Letters, digits and underscores only</td><td><code>user_name</code>, <code>x2</code></td><td><code>my-var</code>, <code>my var</code></td></tr>
+    <tr><td>Cannot start with a digit</td><td><code>item1</code></td><td><code>1item</code>, <code>2nd_place</code></td></tr>
+    <tr><td>Not a reserved word</td><td><code>class_name</code></td><td><code>class</code>, <code>if</code>, <code>for</code></td></tr>
+    <tr><td>Case-sensitive</td><td><code>total</code> and <code>Total</code> are different names</td><td></td></tr>
+  </table>
+  <p>Style: use <code>snake_case</code> for variables and make names descriptive (<code>total_price</code>, not <code>tp</code>). By convention, <code>UPPER_CASE</code> marks a value you intend not to change, such as <code>MAX_RETRIES = 3</code>. Python does not enforce it.</p>
+
+  <h2>How variables work in memory</h2>
+  <p>Think of a variable as a <b>name tag attached to an object</b>, not a box that contains a value. Values are objects living in memory. Assignment never copies the object. It just attaches a name to it.</p>
+<pre class="diagram">a = [1, 2, 3]
+b = a
+
+a ──┐
+    ├──▶  [1, 2, 3]      one list object, two names
+b ──┘</pre>
+  <p>Because both names point at the same object, changing it through one name shows up through the other:</p>
+  <div class="cell" data-cell data-title="Try it: two names, one object">
+<textarea class="src" spellcheck="false">
+a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)               # [1, 2, 3, 4]  (a changed too!)
+print(a is b)          # True: same object
+print(id(a) == id(b))  # True: id() identifies an object
+
+c = a.copy()           # a real copy: a new object
+c.append(5)
+print(a, c)            # a is unchanged
+print(a == c, a is c)  # == compares values, "is" compares identity
+</textarea>
+  </div>
+  <h3>Mutable and immutable</h3>
+  <ul>
+    <li><b>Mutable</b> objects can change in place: lists, dictionaries, sets. This is why the example above surprised you.</li>
+    <li><b>Immutable</b> objects cannot: numbers, strings, tuples. &quot;Changing&quot; one really creates a new object and moves the name to it.</li>
+  </ul>
+  <div class="cell" data-cell data-title="Try it: immutable values">
+<textarea class="src" spellcheck="false">
+x = 5
+y = x
+x = x + 1          # creates a new int and moves the name x to it
+print(x, y)        # 6 5  (y still points at the old 5)
+
+s = "hi"
+print(s.upper(), s)        # upper() returns a new string, s is unchanged
+</textarea>
+  </div>
+  <div class="note"><p><b>Rules of thumb.</b> Use <code>==</code> to compare values and <code>is</code> only for <code>None</code> (<code>if x is None</code>). To copy a list use <code>b = a.copy()</code> or <code>list(a)</code>. These make a shallow copy, so nested lists inside are still shared. When no name points to an object any more, Python frees its memory automatically.</p></div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="var-1" data-title="Challenge 1: Swap">
+    <div class="task"><p>Swap the values of <code>a</code> and <code>b</code> in a single line.</p></div>
+<textarea class="src" spellcheck="false">
+a = 1
+b = 2
+# swap them here
+</textarea>
+    <script type="text/plain" class="test">
+assert a == 2 and b == 1, "After your code, a should be 2 and b should be 1."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">a = 1
+b = 2
+a, b = b, a</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="var-2" data-title="Challenge 2: Break the link">
+    <div class="task"><p>Change <b>only the second line</b> so that appending to <code>b</code> no longer changes <code>a</code>. After the code, <code>a</code> must be <code>[1, 2, 3]</code> and <code>b</code> must be <code>[1, 2, 3, 4]</code>.</p></div>
+<textarea class="src" spellcheck="false">
+a = [1, 2, 3]
+b = a
+b.append(4)
+</textarea>
+    <script type="text/plain" class="test">
+assert a == [1, 2, 3], "a was changed. b must be a separate copy."
+assert b == [1, 2, 3, 4], "b should end up as [1, 2, 3, 4]."
+assert a is not b, "a and b must be different objects."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">a = [1, 2, 3]
+b = a.copy()
+b.append(4)</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="var-3" data-title="Challenge 3: Fix the name">
+    <div class="task"><p>This code fails because of an invalid variable name. Rename the variable so it prints <code>Asha</code>.</p></div>
+<textarea class="src" spellcheck="false">
+2nd_place = "Asha"
+print(2nd_place)
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "Asha", "The program should print Asha."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">second_place = "Asha"
+print(second_place)</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: b = a only attaches a second name to the same list.">
+    <p class="q"><code>a = [1, 2]</code> then <code>b = a</code> then <code>b.append(3)</code>. What is <code>a</code>?</p>
+    <button class="opt">[1, 2]</button>
+    <button class="opt">[1, 2, 3]</button>
+    <button class="opt">An error</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: == compares values, is checks whether both names refer to the very same object.">
+    <p class="q">What is the difference between <code>==</code> and <code>is</code>?</p>
+    <button class="opt">== compares values, is compares whether it is the same object</button>
+    <button class="opt">They are identical</button>
+    <button class="opt">is compares values, == compares objects</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: names may use letters, digits and underscores, but cannot start with a digit.">
+    <p class="q">Which is a valid variable name?</p>
+    <button class="opt">my-score</button>
+    <button class="opt">3rd_place</button>
+    <button class="opt">_score3</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>A variable is a <b>name that refers to an object</b>. The type belongs to the value.</li>
+    <li>Names: letters, digits, underscores, not starting with a digit, case-sensitive, <code>snake_case</code> by convention.</li>
+    <li><code>b = a</code> never copies. Mutable objects (lists, dicts) change in place, immutable ones (numbers, strings, tuples) are replaced.</li>
+    <li>Use <code>==</code> for values, <code>is None</code> for None, and <code>.copy()</code> when you need a separate list.</li>
+  </ul>
+  <p>Finish with the mixed <a href="07-challenge-set.html">challenge set</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data types: the big picture | Python refresher</title>
+<meta name="description" content="The core Python data types at a glance: number, string, list, tuple, dictionary, set and boolean.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="09-data-types">
+
+<article class="doc">
+  <p class="crumb">Data and memory</p>
+  <h1>Data types: the big picture</h1>
+  <p class="lede">The seven built-in types you will use all the time, what each is for, and how to pick the right one.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Every value has a type</h2>
+  <p>Every value in Python has a <b>type</b>, and <code>type()</code> tells you what it is. The type belongs to the value, not to the variable name (see the Variables page). Here are the core types side by side:</p>
+  <table>
+    <tr><th>Type</th><th>Example</th><th>Mutable?</th><th>Order</th><th>Use it for</th></tr>
+    <tr><td><b>Number</b><br><code>int</code>, <code>float</code></td><td><code>42</code>, <code>3.14</code></td><td>No</td><td>n/a</td><td>Counts and math</td></tr>
+    <tr><td><b>String</b><br><code>str</code></td><td><code>"hello"</code></td><td>No</td><td>Yes</td><td>Text</td></tr>
+    <tr><td><b>List</b><br><code>list</code></td><td><code>[1, "a", 2.5]</code></td><td>Yes</td><td>Yes</td><td>An ordered collection that changes</td></tr>
+    <tr><td><b>Tuple</b><br><code>tuple</code></td><td><code>(3, 4)</code></td><td>No</td><td>Yes</td><td>A fixed group of values</td></tr>
+    <tr><td><b>Dictionary</b><br><code>dict</code></td><td><code>{"name": "Asha"}</code></td><td>Yes</td><td>Insertion order</td><td>Looking things up by key</td></tr>
+    <tr><td><b>Set</b><br><code>set</code></td><td><code>{1, 2, 3}</code></td><td>Yes</td><td>No</td><td>Unique items, fast membership checks</td></tr>
+    <tr><td><b>Boolean</b><br><code>bool</code></td><td><code>True</code>, <code>False</code></td><td>No</td><td>n/a</td><td>Yes/no answers</td></tr>
+  </table>
+  <p>Also worth knowing: <code>None</code> is a special value meaning &quot;nothing here&quot;. Advanced topics such as decorators and generators come in later pages.</p>
+
+  <h2>Numbers and booleans</h2>
+  <p>There are two number types you use daily: <code>int</code> (whole numbers, as large as memory allows) and <code>float</code> (decimals, stored approximately). A <code>bool</code> is a kind of int: <code>True</code> acts like 1 and <code>False</code> like 0.</p>
+  <div class="cell" data-cell data-title="Try it: numbers and booleans">
+<textarea class="src" spellcheck="false">
+print(type(42), type(3.14), type(True))
+print(10 / 3)             # / always gives a float
+print(10 // 3, 10 % 3)    # floor division and remainder: 3 1
+print(2 ** 100)           # ints never overflow
+print(0.1 + 0.2)          # 0.30000000000000004: floats are approximate
+print(True + True)        # 2: a bool is an int underneath
+print(bool(0), bool(""), bool([]), bool("0"))
+</textarea>
+  </div>
+  <p>The last line shows <b>truthiness</b>: zero, empty values and <code>None</code> count as <code>False</code>. Everything else counts as <code>True</code>, including the string <code>"0"</code>, because it is not empty.</p>
+
+  <h2>Strings, lists and tuples</h2>
+  <p>These three are <b>sequences</b>: ordered, indexable from 0, and sliceable. They share <code>len()</code>, indexing, <code>in</code> and slicing.</p>
+  <div class="cell" data-cell data-title="Try it: sequences and converting types">
+<textarea class="src" spellcheck="false">
+word = "python"
+items = [10, "ten", 2.5]
+point = (3, 4)
+
+print(word[0], items[-1], point[1])     # index from the start or the end
+print(len(word), len(items), len(point))
+print(items + [99])                     # joins into a NEW list
+print("ten" in items)                   # membership test
+
+print(list("abc"), tuple([1, 2]), str(42))    # converting between types
+print(int("7") + 1, float("2.5"))             # text to numbers
+</textarea>
+  </div>
+
+  <h2>Dictionaries and sets</h2>
+  <p>A <b>dictionary</b> maps keys to values and is the right tool whenever you look things up by name. A <b>set</b> stores unique items with no order and is fast for &quot;is it in here?&quot; checks.</p>
+  <div class="cell" data-cell data-title="Try it: dict and set">
+<textarea class="src" spellcheck="false">
+user = {"name": "Asha", "age": 30}
+print(user["name"])                       # look up by key
+user["city"] = "Delhi"                    # add a new key
+print(user.get("phone", "n/a"))           # safe lookup with a default
+print(list(user.keys()), list(user.values()))
+
+nums = {1, 2, 2, 3, 3}
+print(nums)                               # duplicates disappear
+print(2 in nums)
+print({1, 2, 3} & {2, 3, 4}, {1, 2} | {2, 5})   # intersection, union
+print(type({}), type(set()))              # {} is an empty dict, not a set
+</textarea>
+  </div>
+  <div class="note"><p><b>Picking a type.</b> Ordered and changing: <code>list</code>. Fixed group: <code>tuple</code>. Look up by name: <code>dict</code>. Unique items or fast membership: <code>set</code>. Keys of a dict and items of a set must be immutable, so a tuple can be a key but a list cannot.</p></div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="dt-1" data-title="Challenge 1: Remove duplicates">
+    <div class="task"><p>Create <code>unique</code> from <code>names</code> so each name appears once, then print how many unique names there are (it should print <code>3</code>).</p></div>
+<textarea class="src" spellcheck="false">
+names = ["asha", "ravi", "asha", "li"]
+# create unique and print its length
+</textarea>
+    <script type="text/plain" class="test">
+assert isinstance(unique, set), "unique should be a set."
+assert _out.strip() == "3", "Print the number of unique names: 3."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">names = ["asha", "ravi", "asha", "li"]
+unique = set(names)
+print(len(unique))</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="dt-2" data-title="Challenge 2: Price list">
+    <div class="task"><p>Print the price of a banana by looking it up in the dictionary, then add a <code>"mango"</code> priced <code>70</code>.</p></div>
+<textarea class="src" spellcheck="false">
+prices = {"apple": 40, "banana": 10}
+# print the banana price, then add mango
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "10", "Print the banana price: 10."
+assert prices.get("mango") == 70, "Add the key 'mango' with the value 70."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">prices = {"apple": 40, "banana": 10}
+print(prices["banana"])
+prices["mango"] = 70</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="dt-3" data-title="Challenge 3: Text to numbers">
+    <div class="task"><p><code>a</code> and <code>b</code> are strings. Print their sum as numbers, <code>12</code>, not the joined text <code>57</code>.</p></div>
+<textarea class="src" spellcheck="false">
+a = "5"
+b = "7"
+# print the numeric sum
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "12", "The program should print 12."
+assert "int(" in _code or "float(" in _code, "Convert the strings to numbers first (int)."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">a = "5"
+b = "7"
+print(int(a) + int(b))</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: {} is an empty dictionary. Create an empty set with set().">
+    <p class="q">What is the type of <code>{}</code>?</p>
+    <button class="opt">set</button>
+    <button class="opt">dict</button>
+    <button class="opt">tuple</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: any non-empty string is truthy, even &quot;0&quot;.">
+    <p class="q">What does <code>bool("0")</code> return?</p>
+    <button class="opt">True</button>
+    <button class="opt">False</button>
+    <button class="opt">An error</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: dictionary keys must be immutable, and a tuple is, while a list is not.">
+    <p class="q">Which of these can be a dictionary key?</p>
+    <button class="opt">[1, 2]</button>
+    <button class="opt">{1, 2}</button>
+    <button class="opt">(1, 2)</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Core types: <b>number</b> (<code>int</code>, <code>float</code>), <b>string</b>, <b>list</b>, <b>tuple</b>, <b>dict</b>, <b>set</b>, <b>bool</b>. Plus <code>None</code> for &quot;nothing&quot;.</li>
+    <li>Strings, lists and tuples are ordered sequences. Dicts look up by key. Sets hold unique items.</li>
+    <li><code>/</code> gives a float, floats are approximate, and zero, empty values and <code>None</code> are falsy.</li>
+    <li>Convert with <code>int()</code>, <code>str()</code>, <code>list()</code>, <code>set()</code> and friends.</li>
+  </ul>
+  <p>Next: <a href="10-memory-and-garbage-collection.html">how all of this lives in memory</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

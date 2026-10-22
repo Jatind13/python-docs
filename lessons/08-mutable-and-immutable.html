@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mutable and immutable | Python refresher</title>
+<meta name="description" content="Which Python objects can change in place and which cannot: lists, tuples, numbers and strings, and why.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="08-mutable-and-immutable">
+
+<article class="doc">
+  <p class="crumb">Data and memory</p>
+  <h1>Mutable and immutable</h1>
+  <p class="lede">Which objects can change in place and which cannot, and why Python made numbers and strings behave differently from lists.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>The idea</h2>
+  <p>Every Python object is either <b>mutable</b> (it can change in place) or <b>immutable</b> (it never changes). With an immutable object, &quot;changing&quot; it really means creating a <i>new</i> object and moving the name to it.</p>
+  <p>A simple test: change the object, then compare <code>id()</code> before and after. Same id means it changed in place.</p>
+  <table>
+    <tr><th>Mutable</th><th>Immutable</th></tr>
+    <tr><td><code>list</code>, <code>dict</code>, <code>set</code></td><td><code>int</code>, <code>float</code>, <code>bool</code>, <code>str</code>, <code>tuple</code>, <code>frozenset</code>, <code>None</code></td></tr>
+  </table>
+
+  <h2>Lists: mutable</h2>
+  <p>A list changes in place: <code>append</code>, item assignment and similar methods all work on the same object.</p>
+  <div class="cell" data-cell data-title="Try it: a list changes in place">
+<textarea class="src" spellcheck="false">
+nums = [1, 2, 3]
+before = id(nums)
+
+nums.append(4)       # change the list...
+nums[0] = 99         # ...and again
+print(nums)                  # [99, 2, 3, 4]
+print(id(nums) == before)    # True: still the same object
+</textarea>
+  </div>
+  <div class="warn"><p><b>Gotcha:</b> methods that change a list in place return <code>None</code>. <code>nums.sort()</code> sorts the list and returns <code>None</code>, so <code>x = nums.sort()</code> leaves <code>x</code> empty-handed. Use <code>sorted(nums)</code> when you want a new sorted list.</p></div>
+
+  <h2>Tuples: immutable</h2>
+  <p>A tuple is like a list that is locked. You can read from it, but you cannot assign to an item.</p>
+  <div class="cell" data-cell data-title="Break it: assigning to a tuple">
+<textarea class="src" spellcheck="false">
+point = (3, 4)
+print(point[0])      # reading is fine
+point[0] = 10        # TypeError: tuples do not support item assignment
+</textarea>
+  </div>
+  <p>To &quot;change&quot; a tuple, build a new one: <code>point = (10, point[1])</code>. One subtlety: a tuple is locked in <i>which objects it holds</i>, but those objects can still be mutable.</p>
+  <div class="cell" data-cell data-title="Try it: a list inside a tuple">
+<textarea class="src" spellcheck="false">
+t = ([1, 2], "x")
+t[0].append(3)       # works: the tuple still holds the very same list
+print(t)             # ([1, 2, 3], 'x')
+</textarea>
+  </div>
+
+  <h2>Numbers and strings: immutable</h2>
+  <p>Numbers and strings never change either. Every operation builds a new object.</p>
+  <div class="cell" data-cell data-title="Try it: new objects every time">
+<textarea class="src" spellcheck="false">
+x = 5
+before = id(x)
+x += 1                       # builds a NEW int, then moves the name x to it
+print(x, id(x) == before)    # 6 False
+
+s = "python"
+t = s.upper()                # a NEW string: s is untouched
+print(s, t)                  # python PYTHON
+s += "!"                     # another new string
+print(s)                     # python!
+# s[0] = "P"                 # TypeError: strings do not support item assignment
+</textarea>
+  </div>
+  <p>Numbers and strings are different kinds of value. A number is a single value. A string is a sequence of characters, so you can index and slice it (<code>s[0]</code>), but you cannot assign to a position.</p>
+
+  <h2>Why numbers and strings are immutable</h2>
+  <ul>
+    <li><b>Safe to share.</b> Many names can point at the same <code>5</code> or <code>"hi"</code>, and nobody can change it behind your back. The aliasing surprise from the Variables page cannot happen.</li>
+    <li><b>They can be dictionary keys.</b> A key must never change, or Python could not find it again. Only immutable (hashable) objects can be keys or set members.</li>
+    <li><b>Memory reuse.</b> Because they never change, Python can reuse one object for equal small numbers and short strings. This is an implementation detail: always compare values with <code>==</code>, not <code>is</code>.</li>
+    <li><b>Predictable.</b> Whatever you pass a number or string to cannot alter the original.</li>
+  </ul>
+  <p>Lists are mutable because they are meant to be built up and changed. Copying a whole list on every change would be slow. That is the trade-off: lists are flexible, numbers and strings are safe.</p>
+  <div class="cell" data-cell data-title="Break it: a list cannot be a dictionary key">
+<textarea class="src" spellcheck="false">
+ok = {(1, 2): "tuple key works"}
+print(ok)
+bad = {[1, 2]: "list key fails"}    # TypeError: unhashable type: 'list'
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="mut-1" data-title="Challenge 1: Update a tuple">
+    <div class="task"><p>This code crashes because tuples cannot be changed. Fix it so it prints <code>(10, 4)</code>.</p></div>
+<textarea class="src" spellcheck="false">
+point = (3, 4)
+point[0] = 10
+print(point)
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "(10, 4)", "The program should print (10, 4)."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Build a new tuple instead of assigning to an item.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">point = (3, 4)
+point = (10, point[1])
+print(point)</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="mut-2" data-title="Challenge 2: Same object">
+    <div class="task"><p>Add <code>4</code> to <code>nums</code> so that it becomes <code>[1, 2, 3, 4]</code> <b>and</b> it is still the same object (<code>before</code> equals <code>after</code>).</p></div>
+<textarea class="src" spellcheck="false">
+nums = [1, 2, 3]
+before = id(nums)
+# add 4 to nums here
+after = id(nums)
+</textarea>
+    <script type="text/plain" class="test">
+assert nums == [1, 2, 3, 4], "nums should end up as [1, 2, 3, 4]."
+assert before == after, "nums became a different object. Change the list in place instead of creating a new one."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0"><code>nums = nums + [4]</code> builds a new list. Use a method that changes the list itself.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">nums = [1, 2, 3]
+before = id(nums)
+nums.append(4)
+after = id(nums)</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="mut-3" data-title="Challenge 3: Strings never change">
+    <div class="task"><p>Create <code>shout</code> as the uppercase version of <code>word</code>, while <code>word</code> itself stays <code>"python"</code>.</p></div>
+<textarea class="src" spellcheck="false">
+word = "python"
+# create shout here
+</textarea>
+    <script type="text/plain" class="test">
+assert word == "python", "word must stay exactly 'python'."
+assert shout == "PYTHON", "shout should be the uppercase version: PYTHON."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">word = "python"
+shout = word.upper()</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="2" data-explain="Correct: lists, dicts and sets are mutable. Tuples and strings are not.">
+    <p class="q">Which of these is mutable?</p>
+    <button class="opt">A tuple</button>
+    <button class="opt">A string</button>
+    <button class="opt">A list</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: += on an int builds a new int and moves x to it, so y still points at the old 5.">
+    <p class="q"><code>x = 5</code>, then <code>y = x</code>, then <code>x += 1</code>. What is <code>y</code>?</p>
+    <button class="opt">5</button>
+    <button class="opt">6</button>
+    <button class="opt">An error</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: the tuple only locks which objects it holds. The list inside is still mutable.">
+    <p class="q"><code>t = ([1], 2)</code> then <code>t[0].append(9)</code>. What happens?</p>
+    <button class="opt">TypeError, because tuples are immutable</button>
+    <button class="opt">It works: t becomes ([1, 9], 2)</button>
+    <button class="opt">t becomes a new tuple with a copy of the list</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li><b>Mutable</b> (<code>list</code>, <code>dict</code>, <code>set</code>) changes in place. <b>Immutable</b> (<code>int</code>, <code>float</code>, <code>bool</code>, <code>str</code>, <code>tuple</code>) never does: Python builds a new object.</li>
+    <li>Same <code>id()</code> after a change means it was changed in place.</li>
+    <li>A tuple locks <i>which</i> objects it holds, not whether they can change.</li>
+    <li>Immutable objects are safe to share, can be dictionary keys, and let Python reuse memory.</li>
+  </ul>
+  <p>Next: <a href="09-data-types.html">data types: the big picture</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>
