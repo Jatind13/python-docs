@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strings in depth | Python refresher</title>
+<meta name="description" content="Slicing, string methods, split and join, formatting, membership, looping, and repr vs str.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="12-strings-in-depth">
+
+<article class="doc">
+  <p class="crumb">Data types in depth</p>
+  <h1>Strings in depth</h1>
+  <p class="lede">Slice and dice text, use the string methods you will reach for every day, split and join, format output, and loop over characters.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Indexing and slicing</h2>
+  <p>A string is a sequence, so every character has a position: <code>0</code> from the left, <code>-1</code> from the right. A slice is written <code>[start:stop:step]</code>. The <b>stop</b> position is <b>not included</b>, and any part can be left out.</p>
+  <table>
+    <tr><th>Slice</th><th>Meaning</th></tr>
+    <tr><td><code>s[0:6]</code></td><td>Positions 0 to 5</td></tr>
+    <tr><td><code>s[:6]</code> / <code>s[7:]</code></td><td>From the start up to 5 / from 7 to the end</td></tr>
+    <tr><td><code>s[:]</code></td><td>The whole string (a copy)</td></tr>
+    <tr><td><code>s[-4:]</code></td><td>The last four characters</td></tr>
+    <tr><td><code>s[0:6:2]</code></td><td>Every second character (the step, or &quot;hopping&quot;)</td></tr>
+    <tr><td><code>s[::-1]</code></td><td>Reversed (a step of -1)</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: slicing">
+<textarea class="src" spellcheck="false">
+chai = "Masala Chai"
+print(chai[0], chai[-1])                 # M i
+print(chai[0:6])                         # Masala
+print(chai[:6], chai[7:], chai[:])       # Masala Chai Masala Chai
+print(chai[-4:])                         # Chai
+print(chai[0:6:2])                       # Msl
+print(chai[::-1])                        # iahC alasaM
+</textarea>
+  </div>
+
+  <h2>The methods you will use daily</h2>
+  <p>Strings are immutable, so every method returns a <b>new</b> string and leaves the original alone.</p>
+  <table>
+    <tr><th>Method</th><th>What it does</th></tr>
+    <tr><td><code>lower()</code>, <code>upper()</code></td><td>Change the case</td></tr>
+    <tr><td><code>strip()</code></td><td>Remove spaces (or other characters) at both ends. Also <code>lstrip()</code>, <code>rstrip()</code></td></tr>
+    <tr><td><code>replace(old, new)</code></td><td>Replace every occurrence</td></tr>
+    <tr><td><code>find(text)</code></td><td>Position of the first match, or <code>-1</code> if missing</td></tr>
+    <tr><td><code>count(text)</code></td><td>How many times it appears</td></tr>
+    <tr><td><code>startswith()</code>, <code>endswith()</code></td><td>Yes or no checks on the ends</td></tr>
+    <tr><td><code>len(s)</code></td><td>Number of characters (a function, not a method)</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: string methods and in">
+<textarea class="src" spellcheck="false">
+chai = "  Masala Chai  "
+print(chai.lower(), chai.upper())
+print(chai.strip())                          # Masala Chai
+print(chai.replace("Masala", "Ginger"))      # new string, chai is unchanged
+print(chai.find("Chai"), chai.find("Tea"))   # 9 -1  (-1 means not found)
+print(chai.count("a"), len(chai))            # 4 15
+print(chai.strip().startswith("Masala"))     # True
+print("Chai" in chai)                        # True: the "does it contain" question
+</textarea>
+  </div>
+
+  <h2>Split, join and format</h2>
+  <p><code>split()</code> turns a string into a list. <code>join()</code> does the opposite: it is called on the <b>separator</b> and given the list. For building text from values, use <b>f-strings</b>, or <code>format()</code> where <code>{}</code> marks a placeholder.</p>
+  <div class="cell" data-cell data-title="Try it: split, join, format">
+<textarea class="src" spellcheck="false">
+flavours = "Lemon, Ginger, Masala, Mint"
+print(flavours.split())                 # splits on spaces: commas stay attached
+print(flavours.split(", "))             # ['Lemon', 'Ginger', 'Masala', 'Mint']
+parts = flavours.split(", ")
+print(" | ".join(parts))                # Lemon | Ginger | Masala | Mint
+
+name, price = "Masala Chai", 30
+print("{} costs {}".format(name, price))              # {} are placeholders
+print("{0} costs {1}, {0} is great".format(name, price))   # numbered placeholders
+print(f"{name} costs {price}")                        # the f-string way
+</textarea>
+  </div>
+
+  <h2>Looping over a string, and repr vs str</h2>
+  <p>A <code>for</code> loop repeats its indented line once per item, here once per character. (Loops get their own page later.) Also useful to know: <code>str()</code> gives the readable form, <code>repr()</code> gives the precise form with quotes and escapes, and <code>print()</code> shows the <code>str()</code> form.</p>
+  <div class="cell" data-cell data-title="Try it: looping, str and repr">
+<textarea class="src" spellcheck="false">
+for ch in "chai":              # one character per round
+    print(ch, end="-")
+print()
+
+s = "chai\n"
+print(str(s))                  # readable: a real new line
+print(repr(s))                 # precise: 'chai\n' with quotes and the escape visible
+print(s)                       # print() shows the str() form
+</textarea>
+  </div>
+  <p>Escape sequences and raw strings (<code>r"..."</code>) were covered in <a href="05-text-essentials.html">Text essentials</a>.</p>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="str-1" data-title="Challenge 1: Slice it">
+    <div class="task"><p>Print only the word <code>Chai</code> from the string, using a slice with a negative index.</p></div>
+<textarea class="src" spellcheck="false">
+chai = "Masala Chai"
+# print the last word using a slice
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "Chai", "The program should print Chai."
+assert "[" in _code and ":" in _code.split("# print")[-1], "Use a slice, for example chai[start:stop]."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">chai = "Masala Chai"
+print(chai[-4:])</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="str-2" data-title="Challenge 2: Clean and split">
+    <div class="task"><p>Remove the outer spaces, then split the text on <code>", "</code>. Print the resulting list: <code>['Lemon', 'Ginger', 'Mint']</code>.</p></div>
+<textarea class="src" spellcheck="false">
+raw = "  Lemon, Ginger, Mint  "
+# clean it, split it, print the list
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "['Lemon', 'Ginger', 'Mint']", "Expected the list ['Lemon', 'Ginger', 'Mint']."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">raw = "  Lemon, Ginger, Mint  "
+print(raw.strip().split(", "))</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="str-3" data-title="Challenge 3: Join with dashes">
+    <div class="task"><p>Turn the list into the single string <code>Lemon-Ginger-Mint</code> and print it.</p></div>
+<textarea class="src" spellcheck="false">
+flavours = ["Lemon", "Ginger", "Mint"]
+# join them with "-" and print
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "Lemon-Ginger-Mint", "The program should print Lemon-Ginger-Mint."
+assert "join(" in _code, "Use the join() method."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">flavours = ["Lemon", "Ginger", "Mint"]
+print("-".join(flavours))</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: positions 0, 1 and 2. The stop position is not included.">
+    <p class="q">What is <code>"python"[0:3]</code>?</p>
+    <button class="opt">"pyth"</button>
+    <button class="opt">"pyt"</button>
+    <button class="opt">"yth"</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: find() returns -1 when the text is missing. (index() would raise an error instead.)">
+    <p class="q">What does <code>"chai".find("x")</code> return?</p>
+    <button class="opt">-1</button>
+    <button class="opt">An error</button>
+    <button class="opt">None</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: join is a string method, called on the separator, and it takes the list.">
+    <p class="q">Which line joins <code>["a", "b"]</code> into <code>"a-b"</code>?</p>
+    <button class="opt">["a", "b"].join("-")</button>
+    <button class="opt">join("-", ["a", "b"])</button>
+    <button class="opt">"-".join(["a", "b"])</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Slice with <code>[start:stop:step]</code>: the stop is excluded, negatives count from the end, and <code>[::-1]</code> reverses.</li>
+    <li>Methods return new strings: <code>lower</code>, <code>upper</code>, <code>strip</code>, <code>replace</code>, <code>find</code>, <code>count</code>.</li>
+    <li><code>split()</code> makes a list, <code>"sep".join(list)</code> makes a string. Use f-strings (or <code>format</code>) to build text.</li>
+    <li><code>in</code> asks &quot;does it contain&quot;, and <code>repr()</code> shows exactly what a string holds.</li>
+  </ul>
+  <p>Next: <a href="13-lists-and-tuples.html">lists and tuples</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

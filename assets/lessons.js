@@ -24,6 +24,12 @@ window.COURSE = {
       { id: "08-mutable-and-immutable",    title: "Mutable and immutable",        min: 10, ready: true },
       { id: "09-data-types",               title: "Data types: the big picture",  min: 10, ready: true },
       { id: "10-memory-and-garbage-collection", title: "Memory and garbage collection", min: 10, ready: true }
+    ]},
+    { title: "Data types in depth", lessons: [
+      { id: "11-numbers-in-depth",         title: "Numbers in depth",             min: 10, ready: true },
+      { id: "12-strings-in-depth",         title: "Strings in depth",             min: 10, ready: true },
+      { id: "13-lists-and-tuples",         title: "Lists and tuples",             min: 10, ready: true },
+      { id: "14-dictionaries",             title: "Dictionaries",                 min: 10, ready: true }
     ]}
   ]
 };

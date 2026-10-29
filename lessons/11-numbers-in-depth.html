@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numbers in depth | Python refresher</title>
+<meta name="description" content="Operators, precedence, conversion, comparisons, the math and random modules, bits, and why floats look wrong.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="11-numbers-in-depth">
+
+<article class="doc">
+  <p class="crumb">Data types in depth</p>
+  <h1>Numbers in depth</h1>
+  <p class="lede">Every operator, the order they run in, converting and rounding, comparisons and logic, a few useful modules, and why <code>0.1 + 0.2</code> is not <code>0.3</code>.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Why numbers are Python's strong suit</h2>
+  <p>Python was not built only for math, but numbers are where it shines. Integers never overflow (<code>2 ** 1000</code> just works), math reads like a formula, and the big scientific libraries (NumPy, pandas, PyTorch) are built on top of it. Getting comfortable with numbers pays off everywhere.</p>
+
+  <h2>Operators and precedence</h2>
+  <table>
+    <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td><code>+</code> <code>-</code> <code>*</code></td><td>Add, subtract, multiply</td><td><code>7 * 2</code> is 14</td></tr>
+    <tr><td><code>/</code></td><td>Division, always gives a float</td><td><code>7 / 2</code> is 3.5</td></tr>
+    <tr><td><code>//</code></td><td>Floor division</td><td><code>7 // 2</code> is 3</td></tr>
+    <tr><td><code>%</code></td><td>Remainder</td><td><code>7 % 2</code> is 1</td></tr>
+    <tr><td><code>**</code></td><td>Power</td><td><code>2 ** 10</code> is 1024</td></tr>
+  </table>
+  <p>When an expression mixes operators, Python follows an order (precedence), highest first: <code>( )</code>, then <code>**</code>, then <code>* / // %</code>, then <code>+ -</code>, then comparisons, then <code>not</code>, <code>and</code>, <code>or</code>. <span class="hl">When in doubt, add parentheses.</span> They cost nothing and make the intent obvious.</p>
+  <p>The same operator can also do different jobs for different types. This is called <b>operator overloading</b>: <code>+</code> adds numbers but joins strings and lists, and <code>*</code> repeats them.</p>
+  <div class="cell" data-cell data-title="Try it: operators, precedence, overloading">
+<textarea class="src" spellcheck="false">
+print(7 + 2, 7 - 2, 7 * 2)       # 9 5 14
+print(7 / 2, 7 // 2, 7 % 2)      # 3.5 3 1
+print(2 ** 10)                   # 1024
+
+print(2 + 3 * 4)                 # 14: * runs before +
+print((2 + 3) * 4)               # 20: parentheses run first
+print(-2 ** 2)                   # -4: ** runs before the minus sign
+print(2 ** 3 ** 2)               # 512: ** groups right to left
+
+print(3 + 4, "a" + "b", [1] + [2])   # one operator, three jobs
+print("ab" * 3, [0] * 3)             # * repeats text and lists
+</textarea>
+  </div>
+
+  <h2>Converting, rounding and helpers</h2>
+  <p><code>int()</code> cuts off the decimals (it never rounds) and <code>float()</code> makes a decimal number. <code>round()</code> rounds, but exact halves go to the nearest <i>even</i> number. The <code>math</code> module adds the rest, and <code>random</code> gives you random numbers.</p>
+  <div class="cell" data-cell data-title="Try it: int, float, round, math, random">
+<textarea class="src" spellcheck="false">
+import math, random
+
+print(int(2.9), int(-2.9), float(40), int("42"))    # 2 -2 40.0 42
+print(round(3.14159, 2), round(2.5), round(3.5))    # 3.14 2 4  (halves go to even)
+print(math.floor(3.5), math.floor(-3.5))            # 3 -4   (down, toward minus infinity)
+print(math.trunc(2.8), math.trunc(-2.8))            # 2 -2   (just drops the decimals)
+print(math.ceil(2.1), math.sqrt(16), math.pi)       # 3 4.0 3.14159...
+
+random.seed(7)                        # same seed gives the same "random" numbers
+print(random.randint(1, 100))         # a whole number from 1 to 100, both included
+print(random.random())                # a float from 0.0 up to, not including, 1.0
+print(random.choice(["tea", "coffee", "juice"]))   # one item from a list
+</textarea>
+  </div>
+
+  <h2>Comparisons, logic and booleans</h2>
+  <p>Comparisons (<code>&lt; &gt; &lt;= &gt;= == !=</code>) give <code>True</code> or <code>False</code>. Combine them with <code>and</code>, <code>or</code> and <code>not</code>. Booleans are numbers underneath: <code>True</code> is 1 and <code>False</code> is 0, so you can add and count with them. Also, <code>and</code> and <code>or</code> return one of their <i>values</i>, which gives a handy default trick.</p>
+  <div class="cell" data-cell data-title="Try it: comparisons and logic">
+<textarea class="src" spellcheck="false">
+x, y, z = 3, 5, 2
+print(x < y, x == y, x != y)       # True False True
+print(x < y and y > z)             # True: both must hold
+print(x > y or y > z)              # True: one is enough
+print(not x > y)                   # True
+print(1 < y < 10)                  # True: chained comparison
+
+print(True + True, sum([True, False, True]))   # 2 2
+print("" or "guest")               # guest: or returns the first truthy value
+print("Asha" and "Hello")          # Hello: and returns the last value if all truthy
+</textarea>
+  </div>
+
+  <h2>Bits and number bases</h2>
+  <p>Bitwise operators work on the binary form of integers: <code>&amp;</code> and, <code>|</code> or, <code>^</code> xor, <code>&lt;&lt;</code> and <code>&gt;&gt;</code> shift. Note that <code>x &lt;&lt; 2</code> only <i>calculates</i> a value. To change <code>x</code> you must store it back. You can also write numbers in binary, octal and hex, and convert with <code>bin()</code>, <code>oct()</code>, <code>hex()</code>.</p>
+  <div class="cell" data-cell data-title="Try it: bitwise operators and bases">
+<textarea class="src" spellcheck="false">
+x = 1
+print(x << 2)           # 4: shift left by 2 (x itself is still 1)
+x <<= 2                 # shift and store back
+print(x)                # 4
+print(6 &amp; 3, 6 | 3, 6 ^ 3, 8 >> 1)    # 2 7 5 4
+
+print(0b1000, 0o20, 0xFF)               # 8 16 255  (binary, octal, hex)
+print(bin(64), oct(64), hex(64))        # 0b1000000 0o100 0x40
+</textarea>
+  </div>
+
+  <h2>Why floats look wrong</h2>
+  <p>Computers store decimals in binary, and numbers like <code>0.1</code> have no exact binary form, just like 1/3 has no exact decimal form. So tiny errors appear. Do not compare floats with <code>==</code>. For tolerance use <code>math.isclose()</code>, and for exact decimal math (money) use <code>Decimal</code> created from a <b>string</b>.</p>
+  <div class="cell" data-cell data-title="Try it: float precision and Decimal">
+<textarea class="src" spellcheck="false">
+from decimal import Decimal
+import math
+
+print(0.1 + 0.1 + 0.1 - 0.3)                    # 5.551115123125783e-17, not 0
+print(0.1 + 0.2 == 0.3)                         # False
+print(math.isclose(0.1 + 0.2, 0.3))             # True: compare with a tolerance
+print(Decimal("0.1") + Decimal("0.2") == Decimal("0.3"))   # True: exact
+print(Decimal("0.1") + Decimal("0.2"))          # 0.3
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="num-1" data-title="Challenge 1: Parentheses">
+    <div class="task"><p>This prints <code>14</code>. Change it so it prints <code>20</code>, by adding parentheses only.</p></div>
+<textarea class="src" spellcheck="false">
+print(2 + 3 * 4)
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "20", "The program should print 20."
+assert _code.count("(") >= 2, "Add parentheses around the part that must run first."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">print((2 + 3) * 4)</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="num-2" data-title="Challenge 2: Exact decimals">
+    <div class="task"><p>With floats, <code>0.1 + 0.2 == 0.3</code> is <code>False</code>. Use <code>Decimal</code> to print <code>True</code> for the same sum.</p></div>
+<textarea class="src" spellcheck="false">
+from decimal import Decimal
+# print whether 0.1 + 0.2 equals 0.3, using Decimal
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "True", "The program should print True."
+assert "Decimal(" in _code.split("import")[-1], "Use Decimal(...) values, written as strings."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">from decimal import Decimal
+print(Decimal("0.1") + Decimal("0.2") == Decimal("0.3"))</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="num-3" data-title="Challenge 3: Floor and trunc">
+    <div class="task"><p>For <code>n = -7.5</code>, print <code>math.floor(n)</code> and then <code>math.trunc(n)</code>, each on its own line.</p></div>
+<textarea class="src" spellcheck="false">
+import math
+n = -7.5
+# print floor, then trunc
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines() == ["-8", "-7"], "Expected -8 (floor) then -7 (trunc), on two lines."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import math
+n = -7.5
+print(math.floor(n))
+print(math.trunc(n))</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: ** runs before the unary minus, so it is -(2 ** 2).">
+    <p class="q">What does <code>print(-2 ** 2)</code> print?</p>
+    <button class="opt">4</button>
+    <button class="opt">-4</button>
+    <button class="opt">An error</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: floor goes toward minus infinity, so -3.5 becomes -4. trunc would give -3.">
+    <p class="q">What is <code>math.floor(-3.5)</code>?</p>
+    <button class="opt">-3</button>
+    <button class="opt">3</button>
+    <button class="opt">-4</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: 0.1 and 0.2 cannot be stored exactly in binary, so the sum is slightly off.">
+    <p class="q">Why is <code>0.1 + 0.2 == 0.3</code> False?</p>
+    <button class="opt">Floats are stored in binary and cannot hold 0.1 exactly</button>
+    <button class="opt">Python has a bug with addition</button>
+    <button class="opt">== does not work on numbers</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Operators: <code>+ - * / // % **</code>. Use parentheses whenever the order is not obvious.</li>
+    <li><code>int()</code> cuts, <code>round()</code> rounds halves to even, <code>floor</code> goes down, <code>trunc</code> drops decimals.</li>
+    <li><code>and</code>, <code>or</code> and <code>not</code> combine conditions. <code>True</code> is 1 and <code>False</code> is 0.</li>
+    <li>Floats are approximate. Use <code>math.isclose</code> to compare and <code>Decimal("...")</code> for exact decimals.</li>
+  </ul>
+  <p>Next: <a href="12-strings-in-depth.html">strings in depth</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

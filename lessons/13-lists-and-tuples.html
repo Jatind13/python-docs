@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lists and tuples | Python refresher</title>
+<meta name="description" content="Slice, change, loop over and copy lists, write list comprehensions, and know when to use a tuple.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="13-lists-and-tuples">
+
+<article class="doc">
+  <p class="crumb">Data types in depth</p>
+  <h1>Lists and tuples</h1>
+  <p class="lede">Lists are Python's everyday arrays: ordered and changeable. Tuples are their fixed, read-only cousin. Slice them, change them, loop over them, and know which to choose.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Lists: slicing and indexing</h2>
+  <p>In other languages this is an &quot;array&quot;. Python calls it a <b>list</b>, and it can hold mixed types and grow or shrink. Indexing and slicing work exactly like strings: <code>0</code> from the left, <code>-1</code> from the right, <code>[start:stop:step]</code> with the stop <b>not included</b>.</p>
+  <div class="cell" data-cell data-title="Try it: list indexing and slicing">
+<textarea class="src" spellcheck="false">
+variety = ["A", "BC", "CDE", "FGH"]
+print(variety[-1])              # FGH
+print(variety[1:3])             # ['BC', 'CDE']  (stop not included)
+print(variety[::2])             # ['A', 'CDE']
+print(len(variety), "CDE" in variety)    # 4 True
+</textarea>
+  </div>
+
+  <h2>Changing a list</h2>
+  <p>Lists are mutable, so these all change the same list in place:</p>
+  <table>
+    <tr><th>To...</th><th>Use</th></tr>
+    <tr><td>Replace one item</td><td><code>v[3] = "IJK"</code></td></tr>
+    <tr><td>Replace a slice</td><td><code>v[1:2] = ["LMN"]</code></td></tr>
+    <tr><td>Insert without removing anything</td><td><code>v[2:2] = ["x", "y"]</code> (an empty slice)</td></tr>
+    <tr><td>Add to the end</td><td><code>append(item)</code>, or <code>extend([a, b])</code> for several</td></tr>
+    <tr><td>Add at a position</td><td><code>insert(index, item)</code></td></tr>
+    <tr><td>Remove the last item (and get it back)</td><td><code>pop()</code>, or <code>pop(index)</code></td></tr>
+    <tr><td>Remove the first matching value</td><td><code>remove(value)</code> (an error if it is missing)</td></tr>
+    <tr><td>Remove by position</td><td><code>del v[0]</code></td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: changing a list">
+<textarea class="src" spellcheck="false">
+variety = ["A", "BC", "CDE", "FGH"]
+variety[3] = "IJK"                 # replace one item
+variety[1:2] = ["LMN"]             # replace a slice
+variety.append("GHIJ")             # add at the end
+variety.insert(1, "green")         # add at position 1
+variety[2:2] = ["x", "y"]          # insert without removing anything
+print(variety)
+
+print(variety.pop())               # GHIJ: removed AND returned
+variety.remove("x")                # removes the first "x"
+del variety[0]                     # removes by position
+print(variety)
+variety.extend(["p", "q"])
+print(variety)
+</textarea>
+  </div>
+
+  <h2>Looping, conditions and comprehensions</h2>
+  <p>A <code>for</code> loop runs its indented lines once per item. An <code>if</code> runs its lines only when the test is true. Both get their own page later, but you need the basics now. A <b>list comprehension</b> builds a new list in one line: <code>[expression for item in sequence]</code>, with an optional <code>if</code> to filter.</p>
+  <div class="cell" data-cell data-title="Try it: for, if and comprehensions">
+<textarea class="src" spellcheck="false">
+variety = ["A", "BC", "oolong"]
+for item in variety:                # repeat for each item
+    print(item)
+for item in variety:
+    print(item, end="-")            # end="-" keeps them on one line
+print()
+
+if "oolong" in variety:             # runs only if the test is True
+    print("I have oolong")
+
+squares = [x ** 2 for x in range(10)]
+evens = [x for x in range(10) if x % 2 == 0]
+print(squares)                      # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+print(evens)                        # [0, 2, 4, 6, 8]
+</textarea>
+  </div>
+  <div class="warn"><p><b>Copying.</b> <code>copy_list = variety</code> is not a copy: it is a second name for the same list (see the Variables page). Use <code>variety.copy()</code> for a real, separate list. It is a <i>shallow</i> copy: lists nested inside are still shared. The Dictionaries page shows how to get a fully independent copy.</p></div>
+
+  <h2>Tuples</h2>
+  <p>A tuple is an ordered sequence like a list, but <b>immutable</b>: once created, you cannot change, add or remove items. Why have one?</p>
+  <ul>
+    <li><b>Safety:</b> data that should not change (coordinates, RGB colours, a fixed set of options) cannot be altered by accident.</li>
+    <li><b>Dictionary keys:</b> a tuple can be a key or set member, a list cannot.</li>
+    <li><b>Intent:</b> a tuple says &quot;this is a fixed record&quot;. A list says &quot;this is a collection that may grow&quot;.</li>
+  </ul>
+  <p>You can index and slice a tuple like a list. Joining two tuples with <code>+</code> builds a <i>new</i> tuple. <b>Unpacking</b> assigns each item to its own name. A one-item tuple needs a trailing comma.</p>
+  <div class="cell" data-cell data-title="Try it: tuples">
+<textarea class="src" spellcheck="false">
+tea = ("Black", "Green", "Lemon")
+print(tea[0], tea[-1], len(tea), type(tea))   # Black Lemon 3 <class 'tuple'>
+all_tea = tea + ("Mint",)          # + builds a NEW tuple
+print(all_tea)
+
+x, y, z = tea                      # unpacking: one name per item
+print(y)                           # Green
+
+print(type((5,)), type((5)))       # tuple int: the comma makes the tuple
+# tea[0] = "Lemon"                 # TypeError: item assignment is not allowed
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="lt-1" data-title="Challenge 1: Edit a list">
+    <div class="task"><p>Change <code>variety</code> into <code>["A", "LMN", "CDE", "FGH", "IJK"]</code> by replacing the second item and adding one at the end.</p></div>
+<textarea class="src" spellcheck="false">
+variety = ["A", "BC", "CDE", "FGH"]
+# edit the list here
+</textarea>
+    <script type="text/plain" class="test">
+assert variety == ["A", "LMN", "CDE", "FGH", "IJK"], "variety should be ['A', 'LMN', 'CDE', 'FGH', 'IJK']."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">variety = ["A", "BC", "CDE", "FGH"]
+variety[1] = "LMN"
+variety.append("IJK")</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="lt-2" data-title="Challenge 2: Comprehension">
+    <div class="task"><p>Build <code>squares</code>, the squares of 1 to 5, using a list comprehension: <code>[1, 4, 9, 16, 25]</code>.</p></div>
+<textarea class="src" spellcheck="false">
+# build squares here
+</textarea>
+    <script type="text/plain" class="test">
+assert squares == [1, 4, 9, 16, 25], "squares should be [1, 4, 9, 16, 25]."
+assert "for" in _code, "Use a list comprehension with for."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0"><code>range(1, 6)</code> gives 1, 2, 3, 4, 5.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">squares = [x ** 2 for x in range(1, 6)]</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="lt-3" data-title="Challenge 3: Unpack a tuple">
+    <div class="task"><p>Unpack <code>tea_types</code> into <code>first</code>, <code>second</code> and <code>third</code>, then print <code>second</code>.</p></div>
+<textarea class="src" spellcheck="false">
+tea_types = ("Black", "Green", "Lemon")
+# unpack and print the middle one
+</textarea>
+    <script type="text/plain" class="test">
+assert first == "Black" and third == "Lemon", "Unpack into the names first, second and third."
+assert _out.strip() == "Green", "Print second: it should show Green."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">tea_types = ("Black", "Green", "Lemon")
+first, second, third = tea_types
+print(second)</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: pop() removes the last item and returns it, so you can use it.">
+    <p class="q">What does <code>items.pop()</code> do?</p>
+    <button class="opt">Removes the first item</button>
+    <button class="opt">Removes the last item and returns it</button>
+    <button class="opt">Removes every item</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: the comma is what makes a tuple. (5) is just the number 5 in parentheses.">
+    <p class="q">Which is a one-item tuple?</p>
+    <button class="opt">(5,)</button>
+    <button class="opt">(5)</button>
+    <button class="opt">[5]</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: tuples are immutable, so a tuple can be a dictionary key and a list cannot.">
+    <p class="q">Which can be used as a dictionary key?</p>
+    <button class="opt">[1, 2]</button>
+    <button class="opt">{1, 2}</button>
+    <button class="opt">(1, 2)</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Lists index and slice like strings, and change in place: <code>append</code>, <code>insert</code>, <code>extend</code>, <code>pop</code>, <code>remove</code>, <code>del</code>, and slice assignment.</li>
+    <li><code>[expr for x in seq if test]</code> builds a list in one line.</li>
+    <li><code>b = a</code> shares a list. <code>a.copy()</code> makes a shallow copy.</li>
+    <li>Tuples are immutable: use them for fixed records and dictionary keys. Unpack with <code>x, y, z = t</code>, and remember the comma in <code>(5,)</code>.</li>
+  </ul>
+  <p>Next: <a href="14-dictionaries.html">dictionaries</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>
