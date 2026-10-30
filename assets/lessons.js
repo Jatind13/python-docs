@@ -30,6 +30,12 @@ window.COURSE = {
       { id: "12-strings-in-depth",         title: "Strings in depth",             min: 10, ready: true },
       { id: "13-lists-and-tuples",         title: "Lists and tuples",             min: 10, ready: true },
       { id: "14-dictionaries",             title: "Dictionaries",                 min: 10, ready: true }
+    ]},
+    { title: "Control flow", lessons: [
+      { id: "15-conditions-and-indentation", title: "Conditions and indentation",   min: 10, ready: true },
+      { id: "16-loops-for-and-while",        title: "Loops: for and while",         min: 10, ready: true },
+      { id: "17-break-continue-exit",        title: "break, continue, pass and exit", min: 10, ready: true },
+      { id: "18-practice-programs",          title: "Practice programs",            min: 15, ready: true }
     ]}
   ]
 };

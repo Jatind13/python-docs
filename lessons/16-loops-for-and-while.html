@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loops: for and while | Python refresher</title>
+<meta name="description" content="Repeat code with for and while loops, range, enumerate, accumulators and nested loops.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="16-loops-for-and-while">
+
+<article class="doc">
+  <p class="crumb">Control flow</p>
+  <h1>Loops: for and while</h1>
+  <p class="lede">Repeat code without copying it. Use <code>for</code> to go through a collection or a number of times, and <code>while</code> to repeat until something changes.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>for loops</h2>
+  <p><code>for item in collection:</code> runs the indented block once per item, with <code>item</code> set to each value in turn. It works on lists, strings, tuples, dictionaries (you get the keys) and <code>range()</code>.</p>
+  <table>
+    <tr><th>Call</th><th>Gives</th></tr>
+    <tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4 (the stop value is not included)</td></tr>
+    <tr><td><code>range(2, 6)</code></td><td>2, 3, 4, 5</td></tr>
+    <tr><td><code>range(1, 10, 3)</code></td><td>1, 4, 7 (start, stop, step)</td></tr>
+    <tr><td><code>enumerate(seq)</code></td><td>(position, item) pairs, when you need the index too</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: for loops">
+<textarea class="src" spellcheck="false">
+for fruit in ["apple", "banana", "cherry"]:
+    print(fruit)
+
+for i in range(3):               # 0 1 2
+    print(i, end=" ")
+print()
+
+print(list(range(1, 10, 3)))     # [1, 4, 7]
+for index, letter in enumerate("abc"):
+    print(index, letter)
+
+total = 0                        # the accumulator pattern:
+for n in [3, 5, 7]:              # start with a value,
+    total += n                   # update it every round
+print(total)                     # 15
+</textarea>
+  </div>
+
+  <h2>while loops</h2>
+  <p><code>while condition:</code> checks the condition, runs the block, and checks again. It stops when the condition becomes false. You use it when you do not know in advance how many rounds you need.</p>
+  <div class="cell" data-cell data-title="Try it: while loops">
+<textarea class="src" spellcheck="false">
+count = 3
+while count > 0:
+    print(count)
+    count -= 1                   # without this line the loop would never end
+print("liftoff")
+
+total, n = 0, 1
+while total < 20:                # keep going until the total reaches 20
+    total += n
+    n += 1
+print(total, n)                  # 21 7
+</textarea>
+  </div>
+  <div class="warn"><p><b>Infinite loops.</b> If nothing inside a <code>while</code> ever makes the condition false, it runs forever. On this page that freezes the browser tab, so reload it to recover. In a terminal, press <kbd>Ctrl</kbd> + <kbd>C</kbd>. Always check that something inside the loop changes the condition.</p></div>
+  <table>
+    <tr><th>Use <code>for</code> when...</th><th>Use <code>while</code> when...</th></tr>
+    <tr><td>You have a collection to go through, or you know how many rounds</td><td>You repeat until a condition changes, and cannot say how many rounds it takes</td></tr>
+    <tr><td>Example: every item in a list, the numbers 1 to 100</td><td>Example: keep asking until the answer is valid</td></tr>
+  </table>
+
+  <h2>Nested loops and indentation</h2>
+  <p>A loop inside a loop runs its whole block for every round of the outer one. Indentation decides what belongs where. Here the <code>print()</code> that ends each line is indented to the level of the inner <code>for</code>, so it runs once per <b>row</b>. Indent it one more level and it would run once per <b>cell</b>.</p>
+  <div class="cell" data-cell data-title="Try it: a multiplication grid (then indent the last print one more level)">
+<textarea class="src" spellcheck="false">
+for row in range(1, 4):
+    for col in range(1, 4):
+        print(row * col, end=" ")
+    print()                      # same level as the inner for: once per row
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="loop-1" data-title="Challenge 1: Add 1 to 100">
+    <div class="task"><p>Use a loop to add the numbers 1 to 100 into <code>total</code>, then print it (<code>5050</code>).</p></div>
+<textarea class="src" spellcheck="false">
+total = 0
+# add 1 to 100 here, then print total
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "5050", "The program should print 5050."
+assert "for" in _code or "while" in _code, "Use a loop to do the adding."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0"><code>range(1, 101)</code> gives 1 up to 100.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">total = 0
+for n in range(1, 101):
+    total += n
+print(total)</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="loop-2" data-title="Challenge 2: Countdown">
+    <div class="task"><p>Use a <code>while</code> loop to print 5, 4, 3, 2, 1 on separate lines, then <code>Go!</code></p></div>
+<textarea class="src" spellcheck="false">
+count = 5
+# your loop here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines() == ["5", "4", "3", "2", "1", "Go!"], "Expected 5, 4, 3, 2, 1 and then Go!, each on its own line."
+assert "while" in _code, "Use a while loop."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">count = 5
+while count > 0:
+    print(count)
+    count -= 1
+print("Go!")</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="loop-3" data-title="Challenge 3: A times table">
+    <div class="task"><p>Print the 7 times table for 1 to 5, one per line, like <code>7 x 1 = 7</code>.</p></div>
+<textarea class="src" spellcheck="false">
+# your loop here
+</textarea>
+    <script type="text/plain" class="test">
+want = ["7 x 1 = 7", "7 x 2 = 14", "7 x 3 = 21", "7 x 4 = 28", "7 x 5 = 35"]
+assert _out.strip().splitlines() == want, "Expected lines like '7 x 1 = 7' up to '7 x 5 = 35'."
+assert "for" in _code or "while" in _code, "Use a loop."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">for i in range(1, 6):
+    print(f"7 x {i} = {7 * i}")</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: range(1, 5) starts at 1 and stops before 5.">
+    <p class="q">What does <code>list(range(1, 5))</code> give?</p>
+    <button class="opt">[1, 2, 3, 4, 5]</button>
+    <button class="opt">[1, 2, 3, 4]</button>
+    <button class="opt">[0, 1, 2, 3, 4]</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: while is for repeating until a condition changes, when the number of rounds is unknown.">
+    <p class="q">You must keep asking the user until they type a valid answer. Which loop fits best?</p>
+    <button class="opt">for, over a fixed list</button>
+    <button class="opt">Neither, you cannot repeat code</button>
+    <button class="opt">while</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: the line is at the same level as the inner for, so it runs once for each round of the outer loop.">
+    <p class="q">In a nested loop, a line indented at the level of the <b>inner for</b> (not inside it) runs...</p>
+    <button class="opt">Once per round of the outer loop</button>
+    <button class="opt">Once per round of the inner loop</button>
+    <button class="opt">Only once in total</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li><code>for x in collection:</code> runs the block once per item. <code>range(start, stop, step)</code> excludes the stop. <code>enumerate</code> adds the position.</li>
+    <li>The accumulator pattern: start a variable before the loop and update it inside.</li>
+    <li><code>while condition:</code> repeats while the condition is true. Something inside must change it, or it never ends.</li>
+    <li>Indentation decides which lines are inside a loop, and which loop they belong to.</li>
+  </ul>
+  <p>Next: <a href="17-break-continue-exit.html">break, continue, pass and exit</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

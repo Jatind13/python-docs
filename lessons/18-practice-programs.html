@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice programs | Python refresher</title>
+<meta name="description" content="Four classic programs that combine conditions and loops, then six challenges to write your own.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="18-practice-programs">
+
+<article class="doc">
+  <p class="crumb">Control flow</p>
+  <h1>Practice programs</h1>
+  <p class="lede">Conditions and loops become useful when you combine them. Read and run four classic programs, then write six of your own.</p>
+  <div class="meta"><span>15 min</span><span>4 programs</span><span id="score" class="score">0 of 6 solved</span></div>
+
+  <h2>Four programs to read and run</h2>
+  <p>For each one, run it first, then predict what happens if you change a value. Notice which <b>indentation level</b> each line sits at: that is where the logic lives.</p>
+
+  <h3>1. FizzBuzz: the order of elif matters</h3>
+  <p>Print 1 to 15, but say <code>Fizz</code> for multiples of 3, <code>Buzz</code> for multiples of 5, and <code>FizzBuzz</code> for both. The check for &quot;both&quot; must come <b>first</b>, because the first matching branch wins.</p>
+  <div class="cell" data-cell data-title="Program 1: FizzBuzz">
+<textarea class="src" spellcheck="false">
+for i in range(1, 16):
+    if i % 15 == 0:
+        print("FizzBuzz")
+    elif i % 3 == 0:
+        print("Fizz")
+    elif i % 5 == 0:
+        print("Buzz")
+    else:
+        print(i)
+</textarea>
+  </div>
+
+  <h3>2. Guess the number: for, if/elif/else and break</h3>
+  <p>A fixed list of guesses is checked against a secret. When one is right, <code>break</code> stops the loop.</p>
+  <div class="cell" data-cell data-title="Program 2: guessing (simulated guesses)">
+<textarea class="src" spellcheck="false">
+secret = 7
+for guess in [3, 9, 7, 5]:
+    if guess < secret:
+        print(guess, "is too low")
+    elif guess > secret:
+        print(guess, "is too high")
+    else:
+        print(guess, "is correct!")
+        break                    # the 5 is never checked
+</textarea>
+  </div>
+  <p>Now the real thing, with you as the player. It uses <code>while True</code> and <code>input()</code>, and a dialog will ask for each guess.</p>
+  <div class="cell" data-cell data-title="Program 2b: play it yourself (input())">
+<textarea class="src" spellcheck="false">
+import random
+
+secret = random.randint(1, 10)
+tries = 0
+while True:
+    guess = int(input("Guess a number from 1 to 10: "))
+    tries += 1
+    if guess == secret:
+        print("Correct, in", tries, "tries")
+        break
+    elif guess < secret:
+        print("Higher")
+    else:
+        print("Lower")
+</textarea>
+  </div>
+
+  <h3>3. Is it prime? for with an else</h3>
+  <p>A number is prime if nothing from 2 up to one less than it divides it evenly. The loop <code>else</code> runs only if <code>break</code> never fired, which is exactly &quot;no divisor found&quot;. Try <code>n = 30</code>.</p>
+  <div class="cell" data-cell data-title="Program 3: prime check">
+<textarea class="src" spellcheck="false">
+n = 29
+if n < 2:
+    print(n, "is not prime")
+else:
+    for d in range(2, n):
+        if n % d == 0:
+            print(n, "is not prime, divisible by", d)
+            break
+    else:
+        print(n, "is prime")
+</textarea>
+  </div>
+
+  <h3>4. Sum of digits: while and arithmetic</h3>
+  <p><code>n % 10</code> is the last digit and <code>n // 10</code> drops it. Repeat until nothing is left.</p>
+  <div class="cell" data-cell data-title="Program 4: sum of digits">
+<textarea class="src" spellcheck="false">
+n = 1234
+total = 0
+while n > 0:
+    total += n % 10              # take the last digit
+    n //= 10                     # remove the last digit
+print(total)                     # 10
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <p>Where a challenge says &quot;keep the first line&quot;, the checker also tries other values, so hard-coding the answer will not work.</p>
+
+  <div class="cell" data-cell data-challenge="prog-1" data-title="1. Fizz and Pop">
+    <div class="task"><p>Print the numbers 1 to 15, but print <code>Fizz</code> for multiples of 3, <code>Pop</code> for multiples of 5, and <code>FizzPop</code> for multiples of both.</p></div>
+<textarea class="src" spellcheck="false">
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+want = ["1", "2", "Fizz", "4", "Pop", "Fizz", "7", "8", "Fizz", "Pop", "11", "Fizz", "13", "14", "FizzPop"]
+assert _out.strip().splitlines() == want, "Check each line: 3 gives Fizz, 5 gives Pop, 15 gives FizzPop."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Test for 15 (both) first, then 3, then 5.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">for i in range(1, 16):
+    if i % 15 == 0:
+        print("FizzPop")
+    elif i % 3 == 0:
+        print("Fizz")
+    elif i % 5 == 0:
+        print("Pop")
+    else:
+        print(i)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="prog-2" data-title="2. Count the vowels">
+    <div class="task"><p>Count the vowels (<code>a e i o u</code>) in <code>word</code> and print the count. Keep the first line.</p></div>
+<textarea class="src" spellcheck="false">
+word = "programming"
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+import io, contextlib
+def _try(code):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        exec(code, {})
+    return buf.getvalue().strip()
+assert 'word = "programming"' in _code, 'Keep the first line: word = "programming".'
+for w, want in [("programming", "3"), ("education", "5"), ("rhythm", "0"), ("banana", "3")]:
+    got = _try(_code.replace('"programming"', '"' + w + '"', 1))
+    assert got == want, f"For {w!r} it should print {want}, but it printed {got!r}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">word = "programming"
+count = 0
+for ch in word:
+    if ch in "aeiou":
+        count += 1
+print(count)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="prog-3" data-title="3. Sum of the even numbers">
+    <div class="task"><p>Add up the even numbers from 1 to 50 and print the total (<code>650</code>).</p></div>
+<textarea class="src" spellcheck="false">
+total = 0
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "650", "The program should print 650."
+assert "for" in _code or "while" in _code, "Use a loop."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">total = 0
+for n in range(1, 51):
+    if n % 2 == 0:
+        total += n
+print(total)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="prog-4" data-inputs='["abc", "123", "secret"]' data-title="4. Password retry (input())">
+    <div class="task"><p>Keep asking <code>Password: </code> until the user types <code>secret</code>, then print <code>Access granted</code>. Use <code>input("Password: ")</code>, <code>while True</code> and <code>break</code>.</p></div>
+<textarea class="src" spellcheck="false">
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.count("Password: ") == 3, "It should ask for the password three times (two wrong, one right)."
+assert _out.strip().splitlines()[-1] == "Access granted", "The last line should be: Access granted"
+assert "break" in _code, "Use break to leave the loop."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">while True:
+    password = input("Password: ")
+    if password == "secret":
+        print("Access granted")
+        break</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="prog-5" data-title="5. Number triangle">
+    <div class="task"><p>Use nested loops to print this triangle (spaces between numbers):</p><pre><code>1
+1 2
+1 2 3
+1 2 3 4</code></pre></div>
+<textarea class="src" spellcheck="false">
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+want = ["1", "1 2", "1 2 3", "1 2 3 4"]
+got = [line.strip() for line in _out.strip().splitlines()]
+assert got == want, "Expected four lines: 1 / 1 2 / 1 2 3 / 1 2 3 4."
+assert _code.count("for") >= 2, "Use two loops, one inside the other."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">The outer loop picks the row. The inner loop prints 1 up to the row number with <code>end=" "</code>. Then <code>print()</code> ends the line, at the outer loop's level.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">for row in range(1, 5):
+    for n in range(1, row + 1):
+        print(n, end=" ")
+    print()</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="prog-6" data-title="6. The next prime">
+    <div class="task"><p>Print the first prime number <b>greater than</b> <code>n</code> (for 90 that is <code>97</code>). Keep the first line: the checker tries other values.</p></div>
+<textarea class="src" spellcheck="false">
+n = 90
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+import io, contextlib
+def _try(code):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        exec(code, {})
+    return buf.getvalue().strip()
+assert "n = 90" in _code, "Keep the first line: n = 90."
+for start, want in [(90, "97"), (100, "101"), (20, "23"), (1, "2")]:
+    got = _try(_code.replace("n = 90", f"n = {start}", 1))
+    assert got == want, f"For n = {start} it should print {want}, but it printed {got!r}."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Combine two ideas: a <code>while True</code> that counts upward, and the prime check from Program 3. <code>break</code> out when you find one.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">n = 90
+while True:
+    n += 1
+    is_prime = n >= 2
+    for d in range(2, n):
+        if n % d == 0:
+            is_prime = False
+            break
+    if is_prime:
+        print(n)
+        break</code></pre></details>
+  </div>
+
+  <h2>What you can do now</h2>
+  <ul>
+    <li>Make decisions with <code>if</code>, <code>elif</code> and <code>else</code>, and combine conditions.</li>
+    <li>Repeat with <code>for</code> and <code>while</code>, accumulate results, and nest loops.</li>
+    <li>Control loops with <code>break</code>, <code>continue</code> and loop <code>else</code>, and stop a program with <code>sys.exit()</code>.</li>
+    <li>Read indentation as structure: it shows exactly which lines belong to which block.</li>
+  </ul>
+  <p>Next up in the roadmap: functions.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+<script>
+  (function () {
+    var ids = ["prog-1", "prog-2", "prog-3", "prog-4", "prog-5", "prog-6"];
+    function update() {
+      var n = ids.filter(function (id) { return window.Progress && window.Progress.getExtra("ch:" + id); }).length;
+      document.getElementById("score").textContent = n + " of " + ids.length + " solved";
+    }
+    document.addEventListener("DOMContentLoaded", update);
+    document.addEventListener("challenge-solved", update);
+  })();
+</script>
+</body>
+</html>

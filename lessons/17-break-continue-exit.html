@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>break, continue, pass and exit | Python refresher</title>
+<meta name="description" content="Control loops with break, continue and loop else, use pass as a placeholder, and stop a program with exit.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="17-break-continue-exit">
+
+<article class="doc">
+  <p class="crumb">Control flow</p>
+  <h1>break, continue, pass and exit</h1>
+  <p class="lede">Four keywords and calls that change how a program flows: leave a loop, skip a round, do nothing on purpose, or stop everything. Plus how indentation decides what each one affects.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>The four at a glance</h2>
+  <table>
+    <tr><th>Keyword</th><th>What it does</th><th>Where it works</th></tr>
+    <tr><td><code>break</code></td><td>Leaves the <b>loop</b> immediately. Code after the loop carries on.</td><td>Inside a loop only</td></tr>
+    <tr><td><code>continue</code></td><td>Skips the rest of <b>this round</b> and jumps to the next one.</td><td>Inside a loop only</td></tr>
+    <tr><td><code>pass</code></td><td>Does <b>nothing</b>. A placeholder where a block is required but you have nothing to write yet.</td><td>Anywhere</td></tr>
+    <tr><td><code>exit()</code> / <code>sys.exit()</code></td><td>Stops the <b>whole program</b>, not just a loop.</td><td>Anywhere</td></tr>
+  </table>
+
+  <h2>break: leave the loop</h2>
+  <p>Use <code>break</code> when you have found what you were looking for, or when continuing makes no sense. The loop ends on the spot, and the line after the loop runs next.</p>
+  <div class="cell" data-cell data-title="Try it: break">
+<textarea class="src" spellcheck="false">
+for n in [3, 8, 12, 5]:
+    if n > 10:
+        print("found", n)
+        break                    # stop looking
+    print("checked", n)
+print("after the loop")
+</textarea>
+  </div>
+
+  <h2>continue: skip to the next round</h2>
+  <p><code>continue</code> abandons the current round and starts the next one. The loop itself keeps going.</p>
+  <div class="cell" data-cell data-title="Try it: continue">
+<textarea class="src" spellcheck="false">
+for n in range(1, 8):
+    if n % 2 == 0:
+        continue                 # even numbers: skip the rest of this round
+    print(n)                     # only odd numbers reach here
+</textarea>
+  </div>
+  <div class="note"><p><b>break vs continue in one line:</b> <code>break</code> ends the loop, <code>continue</code> ends only the current round. Code written after <code>continue</code> in the same block never runs for that round.</p></div>
+
+  <h2>How indentation decides what they affect</h2>
+  <p>Both keywords act on the <b>nearest loop around them</b>, and indentation tells Python where that is. Two rules to remember:</p>
+  <ul>
+    <li><b>Where the keyword sits decides when it fires.</b> Indented under an <code>if</code>, it fires only when that condition is true. Indented at the loop level, it fires every round.</li>
+    <li><b>In nested loops, they affect only the inner loop</b> that contains them. The outer loop carries on.</li>
+  </ul>
+  <p>First, the same <code>break</code> at two indentation levels. Loop A stops when <code>n == 2</code>. Loop B stops in the very first round, because its <code>break</code> is not under the <code>if</code>:</p>
+  <div class="cell" data-cell data-title="Try it: the indentation of break">
+<textarea class="src" spellcheck="false">
+for n in range(5):
+    if n == 2:
+        break                    # under the if: fires only when n == 2
+    print(n)
+print("loop A stopped")
+
+for n in range(5):
+    if n == 2:
+        print("two!")
+    break                        # under the for: fires in the FIRST round
+print("loop B stopped")
+</textarea>
+  </div>
+  <p>Now a nested loop. The <code>break</code> only leaves the inner loop, so the outer one keeps running:</p>
+  <div class="cell" data-cell data-title="Try it: break in nested loops">
+<textarea class="src" spellcheck="false">
+for i in range(3):
+    for j in range(3):
+        if j == 1:
+            break                # leaves only the inner loop
+        print(i, j)
+print("done")
+</textarea>
+  </div>
+  <div class="cell" data-cell data-title="Break it: break outside a loop">
+<textarea class="src" spellcheck="false">
+print("start")
+break
+</textarea>
+  </div>
+  <p>Notice that &quot;start&quot; did not print. <code>break</code> outside a loop is a <code>SyntaxError</code>, which Python finds before running anything (the same idea as on the first page).</p>
+
+  <h2>Loop else</h2>
+  <p>Python lets a loop have an <code>else</code>. It runs only if the loop finished <b>without</b> hitting <code>break</code>. It is neat for &quot;search, and say so if not found&quot;.</p>
+  <div class="cell" data-cell data-title="Try it: loop else">
+<textarea class="src" spellcheck="false">
+for n in [4, 6, 8]:
+    if n % 2 == 1:
+        print("found an odd number")
+        break
+else:
+    print("no odd numbers")      # runs because break never happened
+</textarea>
+  </div>
+
+  <h2>pass and exit</h2>
+  <p><code>pass</code> keeps a block valid when you have nothing to put in it yet. An empty block is an <code>IndentationError</code>, so write <code>pass</code> as a stand-in:</p>
+  <pre><code class="py">if user_is_admin:
+    pass          # TODO: add admin features later</code></pre>
+  <p><code>sys.exit()</code> ends the whole program immediately, even from inside a loop or nested blocks. In scripts use <code>sys.exit()</code>. The plain <code>exit()</code> and <code>quit()</code> are intended for the interactive prompt. Here the page simply stops the program quietly.</p>
+  <div class="cell" data-cell data-title="Try it: sys.exit() stops everything">
+<textarea class="src" spellcheck="false">
+import sys
+
+for n in range(1, 6):
+    print(n)
+    if n == 3:
+        sys.exit()               # the whole program ends here
+print("never reached")           # break would have let this line run
+</textarea>
+  </div>
+  <p>A common pattern is <code>while True:</code> with a <code>break</code> inside: loop forever until a condition is met. It is safe only because the <code>break</code> exists.</p>
+  <div class="cell" data-cell data-title="Try it: while True with input()">
+<textarea class="src" spellcheck="false">
+while True:
+    answer = input("Type yes to continue: ")
+    if answer == "yes":
+        print("continuing")
+        break
+    print("I need a yes")
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="brk-1" data-title="Challenge 1: First negative">
+    <div class="task"><p>Print the <b>first</b> negative number in the list (<code>-2</code>), then stop looking. Keep the first line as it is: the checker tries other lists.</p></div>
+<textarea class="src" spellcheck="false">
+nums = [4, 9, -2, 7, -5]
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+import io, contextlib
+def _try(code):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        exec(code, {})
+    return buf.getvalue().strip()
+assert "nums = [4, 9, -2, 7, -5]" in _code, "Keep the first line as it is."
+assert "break" in _code, "Use break to stop after the first one."
+for lst, want in [("[4, 9, -2, 7, -5]", "-2"), ("[-1, 5]", "-1"), ("[5, -9, -3]", "-9")]:
+    got = _try(_code.replace("[4, 9, -2, 7, -5]", lst, 1))
+    assert got == want, f"For {lst} it should print only {want}, but it printed {got!r}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">nums = [4, 9, -2, 7, -5]
+for n in nums:
+    if n < 0:
+        print(n)
+        break</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="brk-2" data-title="Challenge 2: Skip the multiples of 3">
+    <div class="task"><p>Print the numbers 1 to 10, one per line, but <b>skip</b> every multiple of 3. Use <code>continue</code>.</p></div>
+<textarea class="src" spellcheck="false">
+for n in range(1, 11):
+    # skip multiples of 3, print the rest
+    pass
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines() == ["1", "2", "4", "5", "7", "8", "10"], "Expected 1 2 4 5 7 8 10, each on its own line."
+assert "continue" in _code, "Use continue."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">for n in range(1, 11):
+    if n % 3 == 0:
+        continue
+    print(n)</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="brk-3" data-title="Challenge 3: Stop the whole program">
+    <div class="task"><p>Make the program stop completely after it prints <code>3</code>, so <code>end of program</code> is <b>never</b> printed. (A <code>break</code> would not be enough.)</p></div>
+<textarea class="src" spellcheck="false">
+import sys
+for n in range(1, 10):
+    print(n)
+    # stop the whole program after printing 3
+print("end of program")
+</textarea>
+    <script type="text/plain" class="test">
+assert "end of program" not in _out, "'end of program' was printed. break only leaves the loop: stop the whole program instead."
+assert _out.strip().splitlines() == ["1", "2", "3"], "It should print 1, 2 and 3, then stop."
+assert "exit(" in _code, "Use sys.exit()."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import sys
+for n in range(1, 10):
+    print(n)
+    if n == 3:
+        sys.exit()
+print("end of program")</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="2" data-explain="Correct: continue ends only the current round. The loop goes on with the next item.">
+    <p class="q">What does <code>continue</code> do?</p>
+    <button class="opt">Leaves the loop</button>
+    <button class="opt">Stops the program</button>
+    <button class="opt">Skips the rest of this round and starts the next</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: break only affects the loop that directly contains it. The outer loop continues.">
+    <p class="q">A <code>break</code> sits inside an inner loop. What does it leave?</p>
+    <button class="opt">Both loops</button>
+    <button class="opt">Only the inner loop</button>
+    <button class="opt">The whole program</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: sys.exit() ends the entire program. break only ends a loop, and the code after the loop still runs.">
+    <p class="q">Which one stops the <b>entire</b> program?</p>
+    <button class="opt">sys.exit()</button>
+    <button class="opt">break</button>
+    <button class="opt">pass</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li><code>break</code> leaves the loop, <code>continue</code> skips to the next round, <code>pass</code> does nothing, <code>sys.exit()</code> stops the program.</li>
+    <li><code>break</code> and <code>continue</code> only work inside loops, and they affect the <b>nearest enclosing loop</b>.</li>
+    <li>Indentation decides when they fire: under an <code>if</code> only when it is true, at loop level every round.</li>
+    <li>A loop <code>else</code> runs only when the loop was not ended by <code>break</code>.</li>
+  </ul>
+  <p>Next: <a href="18-practice-programs.html">practice programs</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

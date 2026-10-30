@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conditions and indentation | Python refresher</title>
+<meta name="description" content="Make decisions with if, elif and else, combine conditions, and understand how indentation defines blocks.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="15-conditions-and-indentation">
+
+<article class="doc">
+  <p class="crumb">Control flow</p>
+  <h1>Conditions and indentation</h1>
+  <p class="lede">Make your program choose with <code>if</code>, <code>elif</code> and <code>else</code>, combine conditions, and learn the one rule that holds Python code together: indentation.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>if, elif, else</h2>
+  <p>An <code>if</code> runs its block only when its condition is <code>True</code>. Add <code>elif</code> (Python's spelling of &quot;else if&quot;) for more conditions, and <code>else</code> for everything left over. Python checks from the top, runs the <b>first</b> branch that matches, and skips the rest.</p>
+  <div class="cell" data-cell data-title="Try it: if, elif, else (change age to 15, then 5)">
+<textarea class="src" spellcheck="false">
+age = 20
+
+if age >= 18:
+    print("adult")
+elif age >= 13:
+    print("teen")
+else:
+    print("child")
+</textarea>
+  </div>
+  <ul>
+    <li>The line ends with a <b>colon</b> <code>:</code>. Forgetting it is a <code>SyntaxError</code>.</li>
+    <li>The condition needs no parentheses: <code>if age &gt;= 18:</code>.</li>
+    <li><code>elif</code> and <code>else</code> are optional, and you can have many <code>elif</code> lines. Order matters, because the first match wins.</li>
+  </ul>
+  <div class="warn"><p><code>=</code> assigns and <code>==</code> compares. <code>if x = 5:</code> is a syntax error. You want <code>if x == 5:</code>.</p></div>
+
+  <h2>Writing conditions</h2>
+  <p>A condition is anything that is true or false: comparisons (<code>&lt; &gt; &lt;= &gt;= == !=</code>), <code>in</code> checks, and combinations with <code>and</code>, <code>or</code>, <code>not</code>. Python also treats values as true or false (&quot;truthiness&quot;): zero, empty strings, empty collections and <code>None</code> count as <code>False</code>, everything else as <code>True</code>.</p>
+  <div class="cell" data-cell data-title="Try it: building conditions">
+<textarea class="src" spellcheck="false">
+age = 25
+has_ticket = True
+items = []
+name = "Asha"
+
+if age >= 18 and has_ticket:
+    print("you can enter")
+if "A" in name:
+    print("name contains A")
+if not items:                  # an empty list counts as False
+    print("the list is empty")
+</textarea>
+  </div>
+
+  <h2>Indentation is the syntax</h2>
+  <p>Most languages use braces <code>{ }</code> to group code. Python uses <b>indentation</b>. A line ending in a colon opens a <b>block</b>, and every line indented underneath it belongs to that block. When the indentation goes back to the left, the block is over.</p>
+<pre class="diagram">if x > 3:                    ← the colon opens a block
+    print("A")               ┐ these two lines are
+    print("B")               ┘ the block (indented)
+print("C")                   ← back at the left edge: the block has ended</pre>
+  <p>Run it, then change <code>x</code> to <code>1</code> and run again. Lines A and B vanish together, because they are one block. Line C always runs.</p>
+  <div class="cell" data-cell data-title="Try it: which lines belong to the if?">
+<textarea class="src" spellcheck="false">
+x = 5
+if x > 3:
+    print("A: inside the if")
+    print("B: also inside")
+print("C: outside, always runs")
+</textarea>
+  </div>
+  <p>Now see how moving a single line changes the meaning. Here line B is dedented, so it is no longer part of the <code>if</code>. Set <code>x = 1</code> to see it still print.</p>
+  <div class="cell" data-cell data-title="Try it: dedent one line">
+<textarea class="src" spellcheck="false">
+x = 5
+if x > 3:
+    print("A: inside the if")
+print("B: now outside, always runs")
+print("C: outside, always runs")
+</textarea>
+  </div>
+  <h3>The rules</h3>
+  <ul>
+    <li>Use <b>4 spaces</b> per level. Every line in one block must have the <b>same</b> indentation.</li>
+    <li>Do not mix tabs and spaces. In VS Code, the Tab key inserts spaces for Python files.</li>
+    <li>Blocks can <b>nest</b>: indent again inside a block to start a block inside it.</li>
+    <li>A block needs at least one line. A colon with nothing indented below it is an error.</li>
+  </ul>
+  <div class="cell" data-cell data-title="Break it: a missing indent">
+<textarea class="src" spellcheck="false">
+x = 5
+if x > 3:
+print("forgot to indent")
+</textarea>
+  </div>
+  <table>
+    <tr><th>Error message</th><th>Usual cause</th></tr>
+    <tr><td><code>expected an indented block after 'if' statement</code></td><td>Nothing is indented under the colon line</td></tr>
+    <tr><td><code>unexpected indent</code></td><td>A line is indented but no colon line came before it</td></tr>
+    <tr><td><code>unindent does not match any outer indentation level</code></td><td>A line dedents to a level that no earlier line used</td></tr>
+  </table>
+
+  <h2>Nested conditions and the one-line form</h2>
+  <p>Indent again inside a block to nest decisions. For a simple either/or value, a <b>conditional expression</b> fits on one line: <code>value_if_true if condition else value_if_false</code>.</p>
+  <div class="cell" data-cell data-title="Try it: nesting and the one-line form">
+<textarea class="src" spellcheck="false">
+n = 7
+if n > 0:
+    if n % 2 == 0:
+        print("positive even")
+    else:
+        print("positive odd")
+else:
+    print("zero or negative")
+
+label = "even" if n % 2 == 0 else "odd"
+print(label)
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <p>For these, keep the first line as it is. The checker also tries other values.</p>
+  <div class="cell" data-cell data-challenge="if-1" data-title="Challenge 1: Pass or fail">
+    <div class="task"><p>Print <code>pass</code> if <code>score</code> is 40 or more, otherwise print <code>fail</code>.</p></div>
+<textarea class="src" spellcheck="false">
+score = 72
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+import io, contextlib
+def _try(code):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        exec(code, {})
+    return buf.getvalue().strip()
+assert "score = 72" in _code, "Keep the first line: score = 72."
+for s, want in [(72, "pass"), (40, "pass"), (39, "fail"), (0, "fail"), (100, "pass")]:
+    got = _try(_code.replace("score = 72", f"score = {s}", 1))
+    assert got == want, f"For score = {s} it should print {want}, but it printed {got!r}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">score = 72
+if score >= 40:
+    print("pass")
+else:
+    print("fail")</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="if-2" data-title="Challenge 2: Ticket price">
+    <div class="task"><p>Print <code>free</code> if <code>age</code> is under 5, <code>child</code> if 5 to 17, and <code>adult</code> if 18 or more.</p></div>
+<textarea class="src" spellcheck="false">
+age = 15
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+import io, contextlib
+def _try(code):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        exec(code, {})
+    return buf.getvalue().strip()
+assert "age = 15" in _code, "Keep the first line: age = 15."
+for a, want in [(3, "free"), (4, "free"), (5, "child"), (15, "child"), (17, "child"), (18, "adult"), (65, "adult")]:
+    got = _try(_code.replace("age = 15", f"age = {a}", 1))
+    assert got == want, f"For age = {a} it should print {want}, but it printed {got!r}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">age = 15
+if age < 5:
+    print("free")
+elif age < 18:
+    print("child")
+else:
+    print("adult")</code></pre></details>
+  </div>
+  <div class="cell" data-cell data-challenge="if-3" data-title="Challenge 3: Fix the indentation">
+    <div class="task"><p>This code crashes. Fix the indentation so <code>big number</code> prints only when <code>n</code> is above 10, and <code>checked</code> always prints.</p></div>
+<textarea class="src" spellcheck="false">
+n = 3
+if n > 10:
+print("big number")
+print("checked")
+</textarea>
+    <script type="text/plain" class="test">
+import io, contextlib
+def _try(code):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        exec(code, {})
+    return buf.getvalue().strip()
+assert "n = 3" in _code, "Keep the first line: n = 3."
+assert _try(_code) == "checked", "With n = 3 the program should print only: checked."
+assert _try(_code.replace("n = 3", "n = 11", 1)) == "big number\nchecked", "With n = 11 it should print big number, then checked."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">n = 3
+if n > 10:
+    print("big number")
+print("checked")</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: indentation is how Python knows which lines belong to the if. Lines at the same indentation after the colon form the block.">
+    <p class="q">How does Python know which lines belong to an <code>if</code>?</p>
+    <button class="opt">They are wrapped in curly braces</button>
+    <button class="opt">They are indented under the line that ends with a colon</button>
+    <button class="opt">They come before the next blank line</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: only the first matching branch runs, so it prints big and skips the elif.">
+    <p class="q"><code>x = 10</code>, with <code>if x &gt; 5: print("big")</code> then <code>elif x &gt; 8: print("huge")</code>. What prints?</p>
+    <button class="opt">big</button>
+    <button class="opt">huge</button>
+    <button class="opt">big and huge</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: = assigns a value, so it is not valid in a condition. Comparison is ==.">
+    <p class="q">What is wrong with <code>if x = 5:</code>?</p>
+    <button class="opt">Nothing, it works</button>
+    <button class="opt">It needs parentheses</button>
+    <button class="opt">It uses = (assign) where == (compare) is needed</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li><code>if</code> / <code>elif</code> / <code>else</code>: each ends with a colon, and the <b>first</b> matching branch runs.</li>
+    <li>Conditions use comparisons, <code>in</code>, <code>and</code>, <code>or</code>, <code>not</code>. Zero, empty values and <code>None</code> are false.</li>
+    <li><b>Indentation defines blocks</b>: 4 spaces, the same level for the same block, and dedenting ends it.</li>
+    <li>Nest blocks by indenting again. Use <code>a if cond else b</code> for a simple one-line choice.</li>
+  </ul>
+  <p>Next: <a href="16-loops-for-and-while.html">loops: for and while</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>
