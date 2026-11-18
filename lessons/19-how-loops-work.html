@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How loops work behind the scenes | Python refresher</title>
+<meta name="description" content="Iterables, iterators, iter() and next(): what a for loop really does, why some objects can be looped only once, and the classic loop pitfalls.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="19-how-loops-work">
+
+<article class="doc">
+  <p class="crumb">Control flow</p>
+  <h1>How loops work behind the scenes</h1>
+  <p class="lede">A <code>for</code> loop looks simple, but it runs on a small protocol of two functions: <code>iter()</code> and <code>next()</code>. Once you see it, a lot of Python suddenly makes sense: why a <code>zip</code> works only once, why <code>range(10**12)</code> costs nothing, and why removing items while looping skips some.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Iterable vs iterator</h2>
+  <table>
+    <tr><th></th><th>Iterable</th><th>Iterator</th></tr>
+    <tr><td>What it is</td><td>Anything you <b>can</b> loop over</td><td>The object that <b>does</b> the looping: it hands out one value at a time</td></tr>
+    <tr><td>Examples</td><td>list, tuple, str, dict, set, range</td><td>what <code>iter(list)</code> returns, <code>zip</code>, <code>enumerate</code>, <code>map</code>, files</td></tr>
+    <tr><td>How you get the next value</td><td>You cannot directly. Ask it for an iterator with <code>iter()</code></td><td><code>next(it)</code></td></tr>
+    <tr><td>Remembers position?</td><td>No. Every loop starts fresh</td><td>Yes. And once it is used up, it stays empty</td></tr>
+  </table>
+  <p>Think of a list as a book and an iterator as a bookmark. You can put many bookmarks in one book, and each one remembers its own page.</p>
+
+  <h2>What a for loop really does</h2>
+  <div class="flow" aria-label="How a for loop runs">
+    <div><b>1. iter(obj)</b>Ask the iterable for a fresh iterator</div><span>&rarr;</span>
+    <div><b>2. next(it)</b>Get the next value and run the loop body with it</div><span>&rarr;</span>
+    <div><b>3. repeat</b>Call next() again</div><span>&rarr;</span>
+    <div class="hot"><b>4. StopIteration</b>No values left: the loop ends quietly</div>
+  </div>
+  <div class="cell" data-cell data-title="Try it: drive an iterator by hand">
+<textarea class="src" spellcheck="false">
+fruits = ["apple", "banana", "cherry"]
+it = iter(fruits)        # step 1: get an iterator
+
+print(next(it))          # apple
+print(next(it))          # banana
+print(next(it))          # cherry
+print(next(it, "done"))  # a default instead of an error when it runs out
+
+# This is (almost exactly) what  for fruit in fruits:  does for you:
+it = iter(fruits)
+while True:
+    try:
+        fruit = next(it)
+    except StopIteration:
+        break
+    print("for-loop style:", fruit)
+</textarea>
+  </div>
+  <div class="note"><p><b>Why this matters:</b> anything that follows this protocol works in a <code>for</code> loop, in <code>list()</code>, <code>sum()</code>, <code>max()</code>, <code>in</code>, unpacking (<code>a, b = ...</code>) and comprehensions. They all call <code>iter()</code> and <code>next()</code> under the hood.</p></div>
+
+  <h2>Iterators are single-use</h2>
+  <p>An iterator remembers where it is, and it never rewinds. This catches people out with <code>zip</code>, <code>map</code> and <code>enumerate</code>, which return iterators, not lists.</p>
+  <div class="cell" data-cell data-title="Try it: the second loop finds nothing">
+<textarea class="src" spellcheck="false">
+pairs = zip(["a", "b", "c"], [1, 2, 3])
+print(list(pairs))       # [('a', 1), ('b', 2), ('c', 3)]
+print(list(pairs))       # []  (already used up!)
+
+nums = [1, 2, 3]         # a list is an iterable, not an iterator:
+print(list(nums), list(nums))   # works every time
+
+print(iter(nums) is iter(nums))  # False: each call makes a new bookmark
+it = iter(nums)
+print(iter(it) is it)            # True: an iterator is its own iterator
+</textarea>
+  </div>
+  <div class="tip"><p>Need to loop over a <code>zip</code> or <code>map</code> twice? Turn it into a list once: <code>pairs = list(zip(a, b))</code>.</p></div>
+
+  <h2>Lazy on purpose: range, files and generators</h2>
+  <p>An iterator works out each value only when <code>next()</code> asks for it. That is why <code>range(10**12)</code> does not build a trillion numbers, and why you can read a 10 GB log file line by line with a plain loop.</p>
+  <div class="cell" data-cell data-title="Try it: laziness">
+<textarea class="src" spellcheck="false">
+big = range(10**12)      # instant: range stores only start, stop and step
+print(big[5], big[-1], 999 in big)   # indexing and "in" are computed, not looked up
+
+# Files are iterators of lines (this page has a small virtual disk)
+with open("notes.txt", "w") as f:
+    f.write("line one\nline two\nline three\n")
+with open("notes.txt") as f:
+    for number, line in enumerate(f, start=1):
+        print(number, line.strip())
+
+# A generator: a function with yield makes its own lazy iterator
+def countdown(n):
+    while n > 0:
+        yield n          # pause here, hand out n, resume on the next next()
+        n -= 1
+
+g = countdown(3)
+print(next(g), next(g), next(g))   # 3 2 1
+print(sum(x * x for x in range(1, 4)))   # a generator expression: 14
+</textarea>
+  </div>
+
+  <h2>Looping over dictionaries</h2>
+  <p>Looping over a dict gives its <b>keys</b>. Use <code>.items()</code> for key and value together, or <code>.values()</code> for values only. These are live <b>views</b>, not copies.</p>
+  <div class="cell" data-cell data-title="Try it: dict iteration">
+<textarea class="src" spellcheck="false">
+prices = {"chai": 20, "samosa": 15, "coffee": 40}
+for name in prices:
+    print(name)
+for name, price in prices.items():
+    print(f"{name}: Rs {price}")
+
+view = prices.keys()
+prices["vada pav"] = 25
+print(view)              # the view already shows the new key
+</textarea>
+  </div>
+
+  <h2>Two classic pitfalls</h2>
+  <h3>1. Removing from a list while looping over it</h3>
+  <p>The loop's iterator keeps an index. When you remove an item, everything after it shifts left, and the next item gets skipped.</p>
+  <div class="cell" data-cell data-title="Break it: the 4 survives">
+<textarea class="src" spellcheck="false">
+nums = [1, 2, 4, 5]
+for n in nums:
+    if n % 2 == 0:
+        nums.remove(n)   # removes 2; 4 slides into its slot and is skipped
+print(nums)              # [1, 4, 5]  (wrong!)
+
+nums = [1, 2, 4, 5]
+nums = [n for n in nums if n % 2 != 0]   # fix: build a new list
+print(nums)              # [1, 5]
+</textarea>
+  </div>
+  <h3>2. Changing a dict's size while looping over it</h3>
+  <div class="cell" data-cell data-title="Break it: RuntimeError">
+<textarea class="src" spellcheck="false">
+stock = {"tea": 0, "milk": 3, "sugar": 0}
+for item in stock:
+    if stock[item] == 0:
+        del stock[item]  # RuntimeError: dictionary changed size during iteration
+</textarea>
+  </div>
+  <p>Fix it by looping over a snapshot: <code>for item in list(stock):</code>, or build a new dict with a comprehension: <code>{k: v for k, v in stock.items() if v}</code>.</p>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="iter-1" data-title="Challenge 1: A for loop without for">
+    <div class="task"><p>Print each item of <code>colors</code> on its own line <b>without</b> using a <code>for</code> loop. Use <code>iter()</code>, <code>next()</code> and <code>while</code>.</p></div>
+<textarea class="src" spellcheck="false">
+colors = ["red", "green", "blue"]
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines() == ["red", "green", "blue"], "Expected red, green and blue on separate lines."
+import re
+assert not re.search(r"\bfor\b", _code), "Do not use a for loop (or a comprehension) here."
+assert "next(" in _code and "iter(" in _code, "Use iter() and next()."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Catch <code>StopIteration</code> with <code>try</code>/<code>except</code>, or pass a default to <code>next()</code> and stop when you get it.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">colors = ["red", "green", "blue"]
+it = iter(colors)
+while True:
+    try:
+        print(next(it))
+    except StopIteration:
+        break</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="iter-2" data-title="Challenge 2: Remove the evens safely">
+    <div class="task"><p>Remove every even number from <code>nums</code> and print the list. Keep the first line: the checker also tries other lists.</p></div>
+<textarea class="src" spellcheck="false">
+nums = [2, 4, 5, 6, 8, 9]
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+import io, contextlib
+src = _code.split("\n", 1)
+assert len(src) == 2 and src[0].strip().startswith("nums ="), "Keep the first line, nums = [...], as it is."
+for case in ([2, 4, 5, 6, 8, 9], [1, 2, 2, 3], [8, 8, 8], [1, 3]):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        exec("nums = " + repr(case) + "\n" + src[1], {})
+    want = str([n for n in case if n % 2])
+    assert buf.getvalue().strip() == want, f"For {case} you printed {buf.getvalue().strip()}, expected {want}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">nums = [2, 4, 5, 6, 8, 9]
+nums = [n for n in nums if n % 2 != 0]
+print(nums)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="iter-3" data-title="Challenge 3: Report card with zip">
+    <div class="task"><p>Use <code>zip</code> to print one line per student, like <code>Asha: 91</code>.</p></div>
+<textarea class="src" spellcheck="false">
+names = ["Asha", "Ravi", "Meera"]
+scores = [91, 78, 85]
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip().splitlines() == ["Asha: 91", "Ravi: 78", "Meera: 85"], "Expected lines like 'Asha: 91'."
+assert "zip(" in _code, "Use zip()."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">for name, score in zip(names, scores):
+    print(f"{name}: {score}")</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="2" data-explain="Correct: zip returns an iterator. The first list() used it up, so the second gets nothing.">
+    <p class="q"><code>z = zip([1, 2], [3, 4])</code>, then <code>list(z)</code> twice. What does the second call give?</p>
+    <button class="opt">[(1, 3), (2, 4)]</button>
+    <button class="opt">An error</button>
+    <button class="opt">[]</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: for calls iter() on the object once, then next() until StopIteration is raised.">
+    <p class="q">How does a <code>for</code> loop know when to stop?</p>
+    <button class="opt">next() raises StopIteration, and the loop catches it</button>
+    <button class="opt">It checks len() before it starts</button>
+    <button class="opt">It stops when it gets None</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: removing shifts the later items left, so the loop skips the item right after each removal.">
+    <p class="q">Why is removing items from a list while looping over it a bug?</p>
+    <button class="opt">Python forbids it with an error</button>
+    <button class="opt">Items shift left, so the loop skips some</button>
+    <button class="opt">The list is copied at the start, so nothing is removed</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>An <b>iterable</b> can be looped over; <code>iter()</code> turns it into an <b>iterator</b>, which hands out values with <code>next()</code>.</li>
+    <li><code>for</code> = <code>iter()</code> once, then <code>next()</code> until <code>StopIteration</code>.</li>
+    <li>Iterators remember their position and are single-use. <code>zip</code>, <code>map</code>, <code>enumerate</code>, files and generators are iterators.</li>
+    <li>Iterators are lazy: values are produced only when asked for, which saves memory.</li>
+    <li>Do not change the size of a list or dict while looping over it. Loop over a copy, or build a new one.</li>
+  </ul>
+  <p>Next: <a href="20-functions.html">Functions</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

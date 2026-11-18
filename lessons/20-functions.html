@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functions | Python refresher</title>
+<meta name="description" content="Define and call functions, pass parameters, return values (and why return is not print), return several values, and write docstrings.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="20-functions">
+
+<article class="doc">
+  <p class="crumb">Functions</p>
+  <h1>Functions</h1>
+  <p class="lede">A function is a named, reusable block of code. You write the logic once, give it a name, and call it wherever you need it. Functions are how small scripts grow into programs without turning into copy-pasted chaos.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Define once, call many times</h2>
+  <pre><code class="py">def greet(name):          # def, a name, parameters in brackets, a colon
+    print("Hello,", name) # the indented block is the body
+
+greet("Asha")             # call it: name is "Asha" for this call
+greet("Ravi")</code></pre>
+  <table>
+    <tr><th>Word</th><th>Means</th></tr>
+    <tr><td><b>Parameter</b></td><td>The variable name in the definition: <code>name</code> in <code>def greet(name)</code></td></tr>
+    <tr><td><b>Argument</b></td><td>The actual value you pass in a call: <code>"Asha"</code> in <code>greet("Asha")</code></td></tr>
+    <tr><td><b>Return value</b></td><td>What the call evaluates to. Without a <code>return</code>, it is <code>None</code></td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: your first functions">
+<textarea class="src" spellcheck="false">
+def square(n):
+    return n * n
+
+def area(length, width):
+    return length * width
+
+print(square(7))                 # 49
+print(area(3, 4))                # 12
+print(square(area(2, 3)))        # calls can be nested: square(6) = 36
+
+result = square(5) + square(2)   # a call is just a value
+print(result)                    # 29
+</textarea>
+  </div>
+  <div class="note"><p><b>Definition is not execution.</b> When Python reads <code>def</code>, it only creates the function object and binds it to the name. The body runs only when you call it. So a function must be defined before the line that <b>calls</b> it runs.</p></div>
+
+  <h2>return is not print</h2>
+  <p>This is the number one beginner mix-up. <code>print()</code> shows something on the screen and throws it away. <code>return</code> hands a value back to whoever called the function, so they can store it, combine it, or pass it on.</p>
+  <div class="cell" data-cell data-title="Try it: print vs return">
+<textarea class="src" spellcheck="false">
+def add_print(a, b):
+    print(a + b)        # shows 5, but gives back nothing
+
+def add_return(a, b):
+    return a + b        # gives back 5
+
+x = add_print(2, 3)
+y = add_return(2, 3)
+print("x is", x)        # x is None
+print("y is", y)        # y is 5
+print(y * 10)           # 50
+# print(x * 10)         # uncomment: TypeError, None * 10
+</textarea>
+  </div>
+  <p><code>return</code> also <b>ends the function immediately</b>. Code after it, in the same path, never runs. That makes "early return" a clean way to handle special cases first:</p>
+  <div class="cell" data-cell data-title="Try it: early return">
+<textarea class="src" spellcheck="false">
+def grade(score):
+    if score >= 90:
+        return "A"
+    if score >= 75:
+        return "B"
+    if score >= 50:
+        return "C"
+    return "Fail"       # reached only if no return above fired
+
+for s in [95, 80, 51, 20]:
+    print(s, grade(s))
+</textarea>
+  </div>
+
+  <h2>Returning several values</h2>
+  <p>Return them separated by commas. Python packs them into a <b>tuple</b>, and you can unpack it straight into variables.</p>
+  <div class="cell" data-cell data-title="Try it: multiple return values">
+<textarea class="src" spellcheck="false">
+import math
+
+def circle_stats(radius):
+    area = math.pi * radius ** 2
+    circumference = 2 * math.pi * radius
+    return area, circumference
+
+a, c = circle_stats(3)
+print(round(a, 2), round(c, 2))   # 28.27 18.85
+print(circle_stats(1))            # it is really a tuple
+</textarea>
+  </div>
+
+  <h2>Docstrings and the help you get for free</h2>
+  <p>A string as the first line of the body is the function's <b>docstring</b>. Editors show it on hover, and <code>help()</code> prints it. Say what the function does, what it takes, and what it returns.</p>
+  <div class="cell" data-cell data-title="Try it: a documented function">
+<textarea class="src" spellcheck="false">
+def to_celsius(fahrenheit: float) -> float:
+    """Convert a temperature from Fahrenheit to Celsius."""
+    return (fahrenheit - 32) * 5 / 9
+
+print(to_celsius(98.6))
+print(to_celsius.__doc__)
+help(to_celsius)
+</textarea>
+  </div>
+  <div class="tip"><p>The <code>: float</code> and <code>-&gt; float</code> are <b>type hints</b>. Python does not enforce them; they document intent and let editors and tools like mypy catch mistakes. Optional, but common in professional code.</p></div>
+
+  <h2>Functions are objects too</h2>
+  <p>A function name is just a variable that points at a function object, exactly like the names-and-objects picture from the memory lesson. So you can store a function in another variable, put it in a list, or pass it to another function. This idea powers <code>sorted(key=...)</code>, closures and decorators later on.</p>
+  <div class="cell" data-cell data-title="Try it: pass a function around">
+<textarea class="src" spellcheck="false">
+def shout(text):
+    return text.upper() + "!"
+
+def whisper(text):
+    return text.lower() + "..."
+
+say = shout                     # no brackets: the function itself, not a call
+print(say("hello"))
+
+def speak(style, text):         # a function that takes a function
+    return style(text)
+
+for style in [shout, whisper]:
+    print(speak(style, "Chai Time"))
+
+print(sorted(["banana", "Kiwi", "apple"], key=str.lower))
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="fn-1" data-title="Challenge 1: is_even">
+    <div class="task"><p>Write <code>is_even(n)</code> that <b>returns</b> <code>True</code> if <code>n</code> is even and <code>False</code> otherwise. Do not print inside it.</p></div>
+<textarea class="src" spellcheck="false">
+def is_even(n):
+    pass   # replace this line
+
+print(is_even(4), is_even(7))
+</textarea>
+    <script type="text/plain" class="test">
+for n, want in [(4, True), (7, False), (0, True), (-3, False), (100, True)]:
+    got = is_even(n)
+    assert got is want, f"is_even({n}) returned {got!r}, expected {want!r}. Use return, not print."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0"><code>n % 2 == 0</code> is already <code>True</code> or <code>False</code>, so you can return it directly.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">def is_even(n):
+    return n % 2 == 0
+
+print(is_even(4), is_even(7))</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fn-2" data-title="Challenge 2: min and max in one call">
+    <div class="task"><p>Write <code>min_max(numbers)</code> that returns the smallest and the largest number as two values, without using the built-in <code>min()</code> or <code>max()</code>.</p></div>
+<textarea class="src" spellcheck="false">
+def min_max(numbers):
+    pass   # your code here
+
+low, high = min_max([4, 9, 1, 7])
+print(low, high)
+</textarea>
+    <script type="text/plain" class="test">
+import re
+assert not re.search(r"\b(min|max)\s*\(", _code.replace("min_max(", "")), "Do not use the built-in min() or max()."
+for case in ([4, 9, 1, 7], [5], [-2, -8, 3, 3], [10, 2, 30, 2]):
+    got = min_max(list(case))
+    assert tuple(got) == (min(case), max(case)), f"min_max({case}) returned {got}, expected {(min(case), max(case))}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def min_max(numbers):
+    low = high = numbers[0]
+    for n in numbers[1:]:
+        if n &lt; low:
+            low = n
+        if n &gt; high:
+            high = n
+    return low, high
+
+low, high = min_max([4, 9, 1, 7])
+print(low, high)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fn-3" data-title="Challenge 3: Fix the bill">
+    <div class="task"><p><code>total_bill</code> prints instead of returning, so the tip calculation crashes. Fix the function so the program prints <code>Total with tip: 550.0</code>.</p></div>
+<textarea class="src" spellcheck="false">
+def total_bill(prices):
+    total = 0
+    for p in prices:
+        total += p
+    print(total)
+
+bill = total_bill([200, 150, 150])
+print("Total with tip:", bill * 1.1)
+</textarea>
+    <script type="text/plain" class="test">
+assert "Total with tip: 550.0" in _out, "The last line should be: Total with tip: 550.0"
+assert total_bill([1, 2]) == 3, "total_bill should return the sum."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def total_bill(prices):
+    total = 0
+    for p in prices:
+        total += p
+    return total
+
+bill = total_bill([200, 150, 150])
+print("Total with tip:", bill * 1.1)</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: a function with no return statement returns None.">
+    <p class="q"><code>def f(): print("hi")</code>. What is <code>x</code> after <code>x = f()</code>?</p>
+    <button class="opt">"hi"</button>
+    <button class="opt">None</button>
+    <button class="opt">An error</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: return a, b packs the values into a tuple.">
+    <p class="q">What type does <code>return a, b</code> give back?</p>
+    <button class="opt">A list</button>
+    <button class="opt">Two separate objects, not a type</button>
+    <button class="opt">A tuple</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: without brackets you refer to the function object itself; with brackets you call it.">
+    <p class="q">What is the difference between <code>shout</code> and <code>shout()</code>?</p>
+    <button class="opt">The first is the function itself, the second calls it</button>
+    <button class="opt">None, both call the function</button>
+    <button class="opt">The first is a syntax error</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li><code>def name(params):</code> creates a function; the body runs only when it is called.</li>
+    <li><code>return</code> gives a value back and ends the call. No return means <code>None</code>.</li>
+    <li><code>return a, b</code> returns a tuple, which you can unpack: <code>x, y = f()</code>.</li>
+    <li>Docstrings and type hints document a function. Python does not enforce hints.</li>
+    <li>Functions are objects: you can store them in variables and pass them to other functions.</li>
+  </ul>
+  <p>Next: <a href="21-function-arguments.html">Function arguments in depth</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

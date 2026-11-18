@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classes and objects | Python refresher</title>
+<meta name="description" content="Object-oriented Python: classes, objects, __init__, self, attributes and methods, class vs instance attributes, and __str__ and __repr__.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="24-classes-and-objects">
+
+<article class="doc">
+  <p class="crumb">Object-oriented Python</p>
+  <h1>Classes and objects</h1>
+  <p class="lede">You have been using objects since page one: <code>"chai".upper()</code> calls a method on a string object. A <b>class</b> lets you design your own kind of object, bundling the data (attributes) and the behaviour (methods) that belong together.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Class vs object</h2>
+  <table>
+    <tr><th>Term</th><th>Means</th><th>Analogy</th></tr>
+    <tr><td><b>Class</b></td><td>The blueprint: which data and methods every object of this kind has</td><td>The recipe for masala chai</td></tr>
+    <tr><td><b>Object</b> (instance)</td><td>One concrete thing made from the class, with its own data</td><td>The cup in your hand</td></tr>
+    <tr><td><b>Attribute</b></td><td>Data stored on an object: <code>cup.size</code></td><td>This cup is large</td></tr>
+    <tr><td><b>Method</b></td><td>A function defined in the class that works on an object: <code>cup.sip()</code></td><td>Something you do with the cup</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: everything is already an object">
+<textarea class="src" spellcheck="false">
+print(type(42), type("chai"), type([1, 2]))
+name = "chai"
+print(name.upper())          # a method of the str class
+print(isinstance(name, str)) # True: name is an instance of str
+</textarea>
+  </div>
+
+  <h2>Your first class</h2>
+  <div class="cell" data-cell data-title="Try it: a Chai class">
+<textarea class="src" spellcheck="false">
+class Chai:
+    def __init__(self, flavour, sugar):   # runs when you create an object
+        self.flavour = flavour             # store data ON the object
+        self.sugar = sugar
+
+    def describe(self):                    # a method: self is the object
+        return f"{self.flavour} chai with {self.sugar} sugar"
+
+    def add_sugar(self, spoons=1):
+        self.sugar += spoons               # methods can change the object
+
+cup1 = Chai("masala", 2)    # calls __init__(cup1, "masala", 2)
+cup2 = Chai("ginger", 0)
+
+print(cup1.describe())
+cup2.add_sugar(3)
+print(cup2.describe())
+print(cup1.sugar, cup2.sugar)   # each object has its own data: 2 3
+</textarea>
+  </div>
+
+  <h3>What is self?</h3>
+  <p><code>self</code> is the object the method was called on. <code>cup1.describe()</code> is really <code>Chai.describe(cup1)</code>: Python passes the object in as the first argument for you. The name <code>self</code> is a convention, but always use it.</p>
+  <div class="cell" data-cell data-title="Try it: the call behind the dot">
+<textarea class="src" spellcheck="false">
+class Chai:
+    def __init__(self, flavour):
+        self.flavour = flavour
+    def describe(self):
+        return f"{self.flavour} chai"
+
+cup = Chai("elaichi")
+print(cup.describe())
+print(Chai.describe(cup))     # exactly the same call, written out
+</textarea>
+  </div>
+  <div class="note"><p><b><code>__init__</code> is not the constructor, strictly speaking.</b> The object is created first (by <code>__new__</code>), then <code>__init__</code> initialises it. In everyday talk people call <code>__init__</code> the constructor, and that is fine. Its job: give every new object the attributes it needs. It must return <code>None</code>.</p></div>
+
+  <h2>Class attributes vs instance attributes</h2>
+  <p>Attributes set on <code>self</code> belong to one object. Attributes written directly in the class body are <b>shared</b> by all objects. Python looks on the object first, then on the class.</p>
+  <div class="cell" data-cell data-title="Try it: shared vs own">
+<textarea class="src" spellcheck="false">
+class Cup:
+    material = "clay"          # class attribute: shared by all cups
+    count = 0
+
+    def __init__(self, size):
+        self.size = size       # instance attribute: one per cup
+        Cup.count += 1         # change the shared value through the class
+
+a, b = Cup("small"), Cup("large")
+print(a.material, b.material, Cup.count)   # clay clay 2
+
+a.material = "steel"           # creates an instance attribute on a only
+print(a.material, b.material)  # steel clay
+print(a.__dict__, b.__dict__)  # what each object stores itself
+</textarea>
+  </div>
+  <div class="warn"><p><b>Same trap as mutable defaults:</b> a list as a class attribute (<code>orders = []</code> in the class body) is shared by every object. If each object needs its own list, create it in <code>__init__</code>: <code>self.orders = []</code>.</p></div>
+
+  <h2>Printing objects nicely: __str__ and __repr__</h2>
+  <p>Methods with double underscores on both sides (&quot;dunder&quot; methods) hook your class into Python's built-in behaviour. The two you will write most:</p>
+  <table>
+    <tr><th>Method</th><th>Used by</th><th>Aim</th></tr>
+    <tr><td><code>__str__</code></td><td><code>print(obj)</code>, <code>str(obj)</code>, f-strings</td><td>Readable, for users</td></tr>
+    <tr><td><code>__repr__</code></td><td>The REPL, lists of objects, debuggers, <code>repr(obj)</code></td><td>Unambiguous, for developers: ideally code that recreates the object</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: before and after">
+<textarea class="src" spellcheck="false">
+class Plain:
+    def __init__(self, name):
+        self.name = name
+
+class Book:
+    def __init__(self, title, pages):
+        self.title, self.pages = title, pages
+    def __str__(self):
+        return f"{self.title} ({self.pages} pages)"
+    def __repr__(self):
+        return f"Book({self.title!r}, {self.pages})"
+    def __len__(self):            # bonus: makes len(book) work
+        return self.pages
+
+print(Plain("x"))                 # <__main__.Plain object at 0x...>
+b = Book("Python Basics", 320)
+print(b)                          # uses __str__
+print([b])                        # lists use __repr__
+print(len(b))                     # 320
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="oop-1" data-title="Challenge 1: A Rectangle class">
+    <div class="task"><p>Write a <code>Rectangle</code> class. <code>Rectangle(3, 4)</code> stores <code>width</code> and <code>height</code>, and has methods <code>area()</code> and <code>perimeter()</code>.</p></div>
+<textarea class="src" spellcheck="false">
+class Rectangle:
+    pass
+
+r = Rectangle(3, 4)
+print(r.area(), r.perimeter())   # 12 14
+</textarea>
+    <script type="text/plain" class="test">
+r = Rectangle(3, 4)
+assert (r.width, r.height) == (3, 4), "Store the values as self.width and self.height."
+assert r.area() == 12, "Rectangle(3, 4).area() should be 12."
+assert r.perimeter() == 14, "Rectangle(3, 4).perimeter() should be 14."
+assert Rectangle(5, 1).area() == 5, "Each rectangle should use its own width and height."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+    def perimeter(self):
+        return 2 * (self.width + self.height)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="oop-2" data-title="Challenge 2: A bank account">
+    <div class="task"><p>Write <code>BankAccount(owner)</code> that starts with a <code>balance</code> of 0. <code>deposit(amount)</code> adds to it. <code>withdraw(amount)</code> subtracts and returns <code>True</code>, but if there is not enough money it changes nothing and returns <code>False</code>.</p></div>
+<textarea class="src" spellcheck="false">
+class BankAccount:
+    pass
+
+acc = BankAccount("Asha")
+acc.deposit(500)
+print(acc.withdraw(200), acc.balance)   # True 300
+print(acc.withdraw(1000), acc.balance)  # False 300
+</textarea>
+    <script type="text/plain" class="test">
+a = BankAccount("x")
+assert a.owner == "x" and a.balance == 0, "A new account should store owner and start with balance 0."
+a.deposit(100)
+assert a.balance == 100, "deposit(100) should make the balance 100."
+assert a.withdraw(30) is True and a.balance == 70, "withdraw(30) should return True and leave 70."
+assert a.withdraw(500) is False and a.balance == 70, "Withdrawing too much should return False and change nothing."
+b = BankAccount("y")
+assert b.balance == 0, "Every account needs its own balance."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">class BankAccount:
+    def __init__(self, owner):
+        self.owner = owner
+        self.balance = 0
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount &gt; self.balance:
+            return False
+        self.balance -= amount
+        return True</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="oop-3" data-title="Challenge 3: Count and print">
+    <div class="task"><p>Give <code>Student</code> a class attribute <code>total</code> that counts how many students were created, and a <code>__str__</code> so that <code>print(Student("Asha", 91))</code> shows <code>Asha: 91</code>.</p></div>
+<textarea class="src" spellcheck="false">
+class Student:
+    def __init__(self, name, marks):
+        self.name = name
+        self.marks = marks
+
+s1 = Student("Asha", 91)
+s2 = Student("Ravi", 78)
+print(s1)
+print(Student.total)    # 2
+</textarea>
+    <script type="text/plain" class="test">
+start = Student.total
+s = Student("Meera", 85)
+assert str(s) == "Meera: 85", "str(Student('Meera', 85)) should be 'Meera: 85'."
+assert Student.total == start + 1, "Creating a student should add 1 to Student.total."
+assert "total" not in vars(s), "total should live on the class, not on each student."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">class Student:
+    total = 0
+
+    def __init__(self, name, marks):
+        self.name = name
+        self.marks = marks
+        Student.total += 1
+
+    def __str__(self):
+        return f"{self.name}: {self.marks}"</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="2" data-explain="Correct: obj.method() is the same as Class.method(obj), so self is the object.">
+    <p class="q">In <code>cup.describe()</code>, what is <code>self</code> inside <code>describe</code>?</p>
+    <button class="opt">The class Chai</button>
+    <button class="opt">Nothing; self is just a keyword</button>
+    <button class="opt">The object cup</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: names set in the class body are class attributes, shared by every instance.">
+    <p class="q">An attribute written in the class body (not on <code>self</code>) is...</p>
+    <button class="opt">Shared by all instances</button>
+    <button class="opt">Copied into each instance when it is created</button>
+    <button class="opt">Private to the class</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: print() uses __str__; __repr__ is the developer-facing fallback and the one shown in lists and the REPL.">
+    <p class="q">Which method does <code>print(obj)</code> use first?</p>
+    <button class="opt">__repr__</button>
+    <button class="opt">__str__</button>
+    <button class="opt">__init__</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>A class is a blueprint; each object (instance) has its own data.</li>
+    <li><code>__init__</code> sets up a new object's attributes on <code>self</code>.</li>
+    <li><code>obj.method()</code> passes the object in as <code>self</code>.</li>
+    <li>Class attributes are shared; instance attributes belong to one object. Mutable data goes in <code>__init__</code>.</li>
+    <li><code>__str__</code> is for users, <code>__repr__</code> for developers.</li>
+  </ul>
+  <p>Next: <a href="25-inheritance-and-more-oop.html">Inheritance and the rest of OOP</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

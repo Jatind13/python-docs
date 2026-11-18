@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 function problems | Python refresher</title>
+<meta name="description" content="Ten short function problems, from square() to a generator and a recursive factorial, each with a built-in check.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="22-function-practice">
+
+<article class="doc">
+  <p class="crumb">Functions</p>
+  <h1>10 function problems</h1>
+  <p class="lede">Ten small problems that cover everything functions can do: parameters, return values, defaults, lambda, <code>*args</code>, <code>**kwargs</code>, and two new ideas introduced along the way, generators and recursion. The checker calls your function with several inputs, so printing the right answer is not enough: <b>return</b> it.</p>
+  <div class="meta"><span>15 min</span><span>10 problems</span><span id="score" class="score">0 of 10 solved</span></div>
+
+  <h2>Warm-up: parameters and return</h2>
+
+  <div class="cell" data-cell data-challenge="fp-1" data-title="1. Square a number">
+    <div class="task"><p>Write <code>square(n)</code> that returns <code>n</code> squared.</p></div>
+<textarea class="src" spellcheck="false">
+def square(n):
+    pass
+
+print(square(6))
+</textarea>
+    <script type="text/plain" class="test">
+for n in (0, 3, -4, 2.5, 12):
+    assert square(n) == n * n, f"square({n}) returned {square(n)!r}, expected {n * n}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def square(n):
+    return n * n</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-2" data-title="2. Add two numbers">
+    <div class="task"><p>Write <code>add(a, b)</code> that returns the sum.</p></div>
+<textarea class="src" spellcheck="false">
+def add(a, b):
+    pass
+
+print(add(2, 3))
+</textarea>
+    <script type="text/plain" class="test">
+for a, b in ((2, 3), (-1, 1), (0.5, 0.25), (100, 250)):
+    assert add(a, b) == a + b, f"add({a}, {b}) returned {add(a, b)!r}, expected {a + b}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def add(a, b):
+    return a + b</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-3" data-title="3. One function, many types">
+    <div class="task"><p>Write <code>multiply(a, b)</code> that returns <code>a * b</code>. Then run it with numbers <b>and</b> with a string and a number. The same code works for both because <code>*</code> means different things for different types. That is <b>polymorphism</b>, and it comes back in the OOP lessons.</p></div>
+<textarea class="src" spellcheck="false">
+def multiply(a, b):
+    pass
+
+print(multiply(4, 5))
+print(multiply("chai ", 3))
+</textarea>
+    <script type="text/plain" class="test">
+assert multiply(4, 5) == 20, "multiply(4, 5) should be 20."
+assert multiply("ab", 3) == "ababab", "multiply('ab', 3) should be 'ababab'."
+assert multiply([0], 2) == [0, 0], "multiply([0], 2) should be [0, 0]."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def multiply(a, b):
+    return a * b</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-4" data-title="4. Return two values">
+    <div class="task"><p>Write <code>rectangle(length, width)</code> that returns the <b>area</b> and the <b>perimeter</b>, in that order.</p></div>
+<textarea class="src" spellcheck="false">
+def rectangle(length, width):
+    pass
+
+area, perimeter = rectangle(5, 3)
+print(area, perimeter)   # 15 16
+</textarea>
+    <script type="text/plain" class="test">
+for l, w in ((5, 3), (1, 1), (10, 2.5)):
+    got = rectangle(l, w)
+    assert tuple(got) == (l * w, 2 * (l + w)), f"rectangle({l}, {w}) returned {got!r}, expected {(l * w, 2 * (l + w))}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def rectangle(length, width):
+    return length * width, 2 * (length + width)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-5" data-title="5. A default value">
+    <div class="task"><p>Write <code>greet(name)</code> that returns <code>"Hello, Asha!"</code> for <code>greet("Asha")</code>, and <code>"Hello, Guest!"</code> when called with no argument.</p></div>
+<textarea class="src" spellcheck="false">
+def greet(name):
+    pass
+
+print(greet("Asha"))
+print(greet())
+</textarea>
+    <script type="text/plain" class="test">
+assert greet("Asha") == "Hello, Asha!", "greet('Asha') should return 'Hello, Asha!'."
+assert greet() == "Hello, Guest!", "greet() should return 'Hello, Guest!'."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def greet(name="Guest"):
+    return f"Hello, {name}!"</code></pre></details>
+  </div>
+
+  <h2>Flexible functions</h2>
+
+  <div class="cell" data-cell data-challenge="fp-6" data-title="6. A lambda">
+    <div class="task"><p>Create <code>cube</code> as a <code>lambda</code> that returns its argument cubed.</p></div>
+<textarea class="src" spellcheck="false">
+cube = None   # replace None with a lambda
+
+print(cube(3))   # 27
+</textarea>
+    <script type="text/plain" class="test">
+assert "lambda" in _code, "Define cube with lambda."
+for n in (0, 2, 3, -2):
+    assert cube(n) == n ** 3, f"cube({n}) returned {cube(n)!r}, expected {n ** 3}."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">cube = lambda x: x ** 3</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-7" data-title="7. Any number of arguments">
+    <div class="task"><p>Write <code>sum_all</code> so it accepts any number of numbers and returns their total. <code>sum_all()</code> returns <code>0</code>.</p></div>
+<textarea class="src" spellcheck="false">
+def sum_all():
+    pass
+
+print(sum_all(1, 2, 3, 4))   # 10
+</textarea>
+    <script type="text/plain" class="test">
+assert sum_all(1, 2, 3, 4) == 10, "sum_all(1, 2, 3, 4) should be 10."
+assert sum_all() == 0, "sum_all() should be 0."
+assert sum_all(7) == 7, "sum_all(7) should be 7."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def sum_all(*numbers):
+    return sum(numbers)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-8" data-title="8. Any number of keyword arguments">
+    <div class="task"><p>Write <code>describe(**info)</code> that returns the pairs as one string, like <code>"name=Asha, age=25"</code>, in the order they were passed.</p></div>
+<textarea class="src" spellcheck="false">
+def describe(**info):
+    pass
+
+print(describe(name="Asha", age=25))
+</textarea>
+    <script type="text/plain" class="test">
+assert describe(name="Asha", age=25) == "name=Asha, age=25", "describe(name='Asha', age=25) should return 'name=Asha, age=25'."
+assert describe(x=1) == "x=1", "describe(x=1) should return 'x=1'."
+assert describe() == "", "describe() should return an empty string."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Build a list of <code>f"{k}={v}"</code> strings from <code>info.items()</code>, then <code>", ".join(...)</code> it.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">def describe(**info):
+    return ", ".join(f"{k}={v}" for k, v in info.items())</code></pre></details>
+  </div>
+
+  <h2>Two new ideas</h2>
+  <h3>Generators: functions that pause</h3>
+  <p>Put <code>yield</code> in a function and calling it no longer runs the body. Instead it returns a <b>generator</b>, a lazy iterator (see <a href="19-how-loops-work.html">how loops work</a>). Each <code>next()</code> runs the body until the next <code>yield</code>, hands out that value, and pauses with all local variables kept. Great for long or endless sequences, because nothing is stored up front.</p>
+  <div class="cell" data-cell data-title="Example: a generator">
+<textarea class="src" spellcheck="false">
+def countdown(n):
+    print("starting")
+    while n > 0:
+        yield n
+        n -= 1
+    print("finished")
+
+g = countdown(3)          # nothing printed yet: the body has not started
+print(next(g))            # starting, 3
+for value in g:           # the loop continues where next() left off
+    print(value)
+</textarea>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-9" data-title="9. Even numbers, lazily">
+    <div class="task"><p>Write a generator <code>evens(limit)</code> that <b>yields</b> the even numbers from 0 up to and including <code>limit</code>.</p></div>
+<textarea class="src" spellcheck="false">
+def evens(limit):
+    pass
+
+print(list(evens(10)))   # [0, 2, 4, 6, 8, 10]
+</textarea>
+    <script type="text/plain" class="test">
+import types
+assert isinstance(evens(4), types.GeneratorType), "evens should be a generator: use yield, not return."
+assert list(evens(10)) == [0, 2, 4, 6, 8, 10], "list(evens(10)) should be [0, 2, 4, 6, 8, 10]."
+assert list(evens(7)) == [0, 2, 4, 6], "list(evens(7)) should be [0, 2, 4, 6]."
+assert list(evens(0)) == [0], "list(evens(0)) should be [0]."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def evens(limit):
+    for n in range(0, limit + 1, 2):
+        yield n</code></pre></details>
+  </div>
+
+  <h3>Recursion: a function that calls itself</h3>
+  <p>A recursive function solves a problem by calling itself on a smaller version of it. It needs two parts: a <b>base case</b> that stops (otherwise you get <code>RecursionError</code>), and a <b>recursive case</b> that moves towards it. Python allows about 1000 nested calls by default, so loops are usually better for large inputs; recursion shines for naturally nested data like trees and folders.</p>
+  <div class="cell" data-cell data-title="Example: recursion">
+<textarea class="src" spellcheck="false">
+def countdown(n):
+    if n == 0:               # base case
+        print("liftoff")
+        return
+    print(n)
+    countdown(n - 1)         # recursive case: a smaller problem
+
+countdown(3)
+
+def total_size(item):        # nested data: a natural fit for recursion
+    if isinstance(item, int):
+        return item
+    return sum(total_size(child) for child in item)
+
+print(total_size([1, [2, 3], [4, [5, 6]]]))   # 21
+</textarea>
+  </div>
+
+  <div class="cell" data-cell data-challenge="fp-10" data-title="10. Recursive factorial">
+    <div class="task"><p>Write <code>factorial(n)</code> <b>recursively</b> (no loops): <code>factorial(5)</code> is 5 &times; 4 &times; 3 &times; 2 &times; 1 = 120, and <code>factorial(0)</code> is 1.</p></div>
+<textarea class="src" spellcheck="false">
+def factorial(n):
+    pass
+
+print(factorial(5))   # 120
+</textarea>
+    <script type="text/plain" class="test">
+import re, math
+assert not re.search(r"\b(for|while)\b", _code), "Solve it with recursion, without a for or while loop."
+assert "math.factorial" not in _code, "Write it yourself, without math.factorial."
+assert "factorial" in factorial.__code__.co_names, "factorial should call itself."
+for n in (0, 1, 5, 10):
+    assert factorial(n) == math.factorial(n), f"factorial({n}) returned {factorial(n)!r}, expected {math.factorial(n)}."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Base case: <code>n</code> is 0 or 1, return 1. Recursive case: <code>n * factorial(n - 1)</code>.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">def factorial(n):
+    if n &lt;= 1:
+        return 1
+    return n * factorial(n - 1)
+
+print(factorial(5))</code></pre></details>
+  </div>
+
+  <h2>What you can do now</h2>
+  <ul>
+    <li>Write functions that take exactly the arguments they need, with sensible defaults.</li>
+    <li>Return one value or several, and know why <code>return</code> beats <code>print</code>.</li>
+    <li>Accept any number of arguments with <code>*args</code> and <code>**kwargs</code>.</li>
+    <li>Produce values lazily with a generator, and solve nested problems with recursion.</li>
+  </ul>
+  <p>Next: <a href="23-scope-and-closures.html">Scope and closures</a>, where functions start remembering things.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+<script>
+  (function () {
+    var ids = ["fp-1", "fp-2", "fp-3", "fp-4", "fp-5", "fp-6", "fp-7", "fp-8", "fp-9", "fp-10"];
+    function update() {
+      var n = ids.filter(function (id) { return window.Progress && window.Progress.getExtra("ch:" + id); }).length;
+      document.getElementById("score").textContent = n + " of " + ids.length + " solved";
+    }
+    document.addEventListener("DOMContentLoaded", update);
+    document.addEventListener("challenge-solved", update);
+  })();
+</script>
+</body>
+</html>

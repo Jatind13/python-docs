@@ -35,7 +35,21 @@ window.COURSE = {
       { id: "15-conditions-and-indentation", title: "Conditions and indentation",   min: 10, ready: true },
       { id: "16-loops-for-and-while",        title: "Loops: for and while",         min: 10, ready: true },
       { id: "17-break-continue-exit",        title: "break, continue, pass and exit", min: 10, ready: true },
-      { id: "18-practice-programs",          title: "Practice programs",            min: 15, ready: true }
+      { id: "18-practice-programs",          title: "Practice programs",            min: 15, ready: true },
+      { id: "19-how-loops-work",             title: "How loops really work",       min: 10, ready: true }
+    ]},
+    { title: "Functions", lessons: [
+      { id: "20-functions",                  title: "Functions",                    min: 10, ready: true },
+      { id: "21-function-arguments",         title: "Function arguments in depth",  min: 10, ready: true },
+      { id: "22-function-practice",          title: "10 function problems",         min: 15, ready: true },
+      { id: "23-scope-and-closures",         title: "Scope and closures",           min: 10, ready: true }
+    ]},
+    { title: "Object-oriented Python", lessons: [
+      { id: "24-classes-and-objects",        title: "Classes and objects",          min: 10, ready: true },
+      { id: "25-inheritance-and-more-oop",   title: "Inheritance and the rest of OOP", min: 15, ready: true }
+    ]},
+    { title: "Going further", lessons: [
+      { id: "26-decorators",                 title: "Decorators",                   min: 15, ready: true }
     ]}
   ]
 };

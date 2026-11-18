@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decorators | Python refresher</title>
+<meta name="description" content="What decorators really are, how the @ syntax works, functools.wraps, and three real decorators: a timer, a debug logger and a cache. Plus decorators that take arguments.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="26-decorators">
+
+<article class="doc">
+  <p class="crumb">Going further</p>
+  <h1>Decorators</h1>
+  <p class="lede">A decorator wraps a function to add behaviour (timing, logging, caching, access checks) without touching the function's own code. It looks like magic, but it is built entirely from two things you already know: functions are objects, and closures remember variables.</p>
+  <div class="meta"><span>15 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Build one by hand first</h2>
+  <p>A decorator is a function that takes a function and returns a new function, usually one that calls the original with something extra before and after.</p>
+  <div class="cell" data-cell data-title="Try it: decorating without the @">
+<textarea class="src" spellcheck="false">
+def announce(func):                 # takes a function...
+    def wrapper():
+        print("before", func.__name__)
+        func()                      # ...calls the original (a closure over func)...
+        print("after", func.__name__)
+    return wrapper                  # ...and returns the new function
+
+def make_chai():
+    print("making chai")
+
+make_chai = announce(make_chai)     # replace the name with the wrapped version
+make_chai()
+</textarea>
+  </div>
+
+  <h2>The @ syntax is only a shortcut</h2>
+  <div class="two-col">
+    <div class="card"><h4>This...</h4><pre><code class="py">@announce
+def make_chai():
+    print("making chai")</code></pre></div>
+    <div class="card"><h4>...means exactly this</h4><pre><code class="py">def make_chai():
+    print("making chai")
+make_chai = announce(make_chai)</code></pre></div>
+  </div>
+  <p>The decorator runs <b>once</b>, when the <code>def</code> is executed. The wrapper runs on <b>every call</b>.</p>
+
+  <h2>A decorator for any function: *args, **kwargs and wraps</h2>
+  <p>The wrapper above only works for functions with no arguments and drops the return value. A real decorator must accept anything, pass it on, and return the result. And it should use <code>functools.wraps</code>, or the decorated function loses its name and docstring (which breaks <code>help()</code>, logging and debugging).</p>
+  <div class="cell" data-cell data-title="Try it: the template every decorator follows">
+<textarea class="src" spellcheck="false">
+import functools
+
+def announce(func):
+    @functools.wraps(func)             # copy name, docstring etc. onto wrapper
+    def wrapper(*args, **kwargs):      # accept any arguments
+        print(f"calling {func.__name__}{args}")
+        result = func(*args, **kwargs) # pass them on unchanged
+        print(f"{func.__name__} returned {result!r}")
+        return result                  # do not forget to return it
+    return wrapper
+
+@announce
+def add(a, b):
+    """Add two numbers."""
+    return a + b
+
+total = add(2, 3)
+print(total, add.__name__, add.__doc__)   # 5 add Add two numbers.
+</textarea>
+  </div>
+
+  <h2>Three real-world decorators</h2>
+  <h3>1. Timer: how long did it take?</h3>
+  <div class="cell" data-cell data-title="Try it: @timer">
+<textarea class="src" spellcheck="false">
+import functools, time
+
+def timer(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        elapsed = time.perf_counter() - start
+        print(f"{func.__name__} took {elapsed * 1000:.2f} ms")
+        return result
+    return wrapper
+
+@timer
+def slow_sum(n):
+    return sum(i * i for i in range(n))
+
+print(slow_sum(300_000))
+</textarea>
+  </div>
+
+  <h3>2. Debug: what went in, what came out?</h3>
+  <div class="cell" data-cell data-title="Try it: @debug">
+<textarea class="src" spellcheck="false">
+import functools
+
+def debug(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        parts = [repr(a) for a in args] + [f"{k}={v!r}" for k, v in kwargs.items()]
+        print(f"-> {func.__name__}({', '.join(parts)})")
+        result = func(*args, **kwargs)
+        print(f"<- {func.__name__} = {result!r}")
+        return result
+    return wrapper
+
+@debug
+def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}!"
+
+greet("Asha")
+greet("Ravi", greeting="Namaste")
+</textarea>
+  </div>
+
+  <h3>3. Cache: never compute the same thing twice</h3>
+  <p>The wrapper keeps a dict in its closure. If it has seen these arguments before, it returns the stored answer instead of calling the function. On a recursive Fibonacci that turns an exponential mess into a handful of calls.</p>
+  <div class="cell" data-cell data-title="Try it: @cache, by hand and built in">
+<textarea class="src" spellcheck="false">
+import functools
+
+def cache(func):
+    memo = {}                              # lives on in the closure
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args not in memo:
+            memo[args] = func(*args)
+        return memo[args]
+    return wrapper
+
+calls = 0
+@cache
+def fib(n):
+    global calls
+    calls += 1
+    return n if n < 2 else fib(n - 1) + fib(n - 2)
+
+print(fib(80), "in", calls, "calls")     # without @cache: about 10**16 calls
+
+@functools.lru_cache(maxsize=None)        # the standard library version
+def fib2(n):
+    return n if n < 2 else fib2(n - 1) + fib2(n - 2)
+print(fib2(80), fib2.cache_info())
+</textarea>
+  </div>
+  <div class="note"><p>Caching works only for <b>pure</b> functions: same input, same output, no side effects. Do not cache something that reads the clock, a file or a database.</p></div>
+
+  <h2>Decorators that take arguments</h2>
+  <p><code>@repeat(3)</code> needs one more layer: <code>repeat(3)</code> is called first and must <b>return a decorator</b>. So it is three functions deep: the argument layer, the decorator, and the wrapper.</p>
+  <div class="cell" data-cell data-title="Try it: @repeat(n)">
+<textarea class="src" spellcheck="false">
+import functools
+
+def repeat(times):                 # 1. takes the decorator's argument
+    def decorator(func):           # 2. takes the function
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):   # 3. runs on every call
+            for _ in range(times):
+                result = func(*args, **kwargs)
+            return result
+        return wrapper
+    return decorator
+
+@repeat(3)                         # same as: say = repeat(3)(say)
+def say(word):
+    print(word)
+
+say("chai")
+</textarea>
+  </div>
+
+  <h2>Stacking, and the decorators you already know</h2>
+  <p>Several decorators can sit on one function. They apply from the <b>bottom up</b>: the one nearest the <code>def</code> wraps first.</p>
+  <div class="cell" data-cell data-title="Try it: stacking order">
+<textarea class="src" spellcheck="false">
+import functools
+
+def tag(name):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return f"<{name}>{func(*args, **kwargs)}</{name}>"
+        return wrapper
+    return decorator
+
+@tag("b")
+@tag("i")          # applied first: b(i(hello))
+def hello():
+    return "hello"
+
+print(hello())     # <b><i>hello</i></b>
+</textarea>
+  </div>
+  <table>
+    <tr><th>Decorator</th><th>Where you met it</th><th>What it does</th></tr>
+    <tr><td><code>@property</code></td><td><a href="25-inheritance-and-more-oop.html">OOP</a></td><td>Turns a method into an attribute</td></tr>
+    <tr><td><code>@classmethod</code> / <code>@staticmethod</code></td><td><a href="25-inheritance-and-more-oop.html">OOP</a></td><td>Change what the method receives</td></tr>
+    <tr><td><code>@functools.lru_cache</code> / <code>@functools.cache</code></td><td>This page</td><td>Memoises results</td></tr>
+    <tr><td><code>@dataclass</code></td><td>Next step</td><td>Writes <code>__init__</code>, <code>__repr__</code> and <code>__eq__</code> for you</td></tr>
+    <tr><td><code>@app.get("/")</code></td><td>Flask, FastAPI</td><td>Registers a function as a web route</td></tr>
+    <tr><td><code>@pytest.fixture</code></td><td>pytest</td><td>Marks a function as test setup</td></tr>
+  </table>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="deco-1" data-title="Challenge 1: @shout">
+    <div class="task"><p>Write a decorator <code>shout</code> that makes the decorated function return its result in upper case. It must work with any arguments and keep the function's name (use <code>functools.wraps</code>).</p></div>
+<textarea class="src" spellcheck="false">
+import functools
+
+def shout(func):
+    pass
+
+@shout
+def greet(name, greeting="hello"):
+    return f"{greeting}, {name}"
+
+print(greet("asha"))                      # HELLO, ASHA
+print(greet("ravi", greeting="namaste"))  # NAMASTE, RAVI
+</textarea>
+    <script type="text/plain" class="test">
+assert greet("bo") == "HELLO, BO", "greet('bo') should return 'HELLO, BO'."
+assert greet("x", greeting="hi") == "HI, X", "Keyword arguments must be passed through."
+assert greet.__name__ == "greet", "Use functools.wraps so the name stays 'greet'."
+@shout
+def f(): return "ok"
+assert f() == "OK", "shout should work on any function."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import functools
+
+def shout(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs).upper()
+    return wrapper
+
+@shout
+def greet(name, greeting="hello"):
+    return f"{greeting}, {name}"</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="deco-2" data-title="Challenge 2: @count_calls">
+    <div class="task"><p>Write <code>count_calls</code> so that the decorated function gets a <code>calls</code> attribute that counts how many times it has been called. Hint: functions are objects, so you can set <code>wrapper.calls = 0</code>.</p></div>
+<textarea class="src" spellcheck="false">
+import functools
+
+def count_calls(func):
+    pass
+
+@count_calls
+def ping():
+    return "pong"
+
+ping(); ping(); ping()
+print(ping.calls)   # 3
+</textarea>
+    <script type="text/plain" class="test">
+@count_calls
+def g(x): return x * 2
+assert g.calls == 0, "A new decorated function should start with calls = 0."
+assert g(4) == 8, "The original return value must come back."
+g(1); g(2)
+assert g.calls == 3, "After three calls, g.calls should be 3."
+assert ping.calls >= 3, "ping.calls should count ping's calls."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">import functools
+
+def count_calls(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        wrapper.calls += 1
+        return func(*args, **kwargs)
+    wrapper.calls = 0
+    return wrapper
+
+@count_calls
+def ping():
+    return "pong"
+
+ping(); ping(); ping()
+print(ping.calls)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="deco-3" data-title="Challenge 3: @retry(times)">
+    <div class="task"><p>Write a decorator <b>with an argument</b>, <code>retry(times)</code>. If the function raises an exception, call it again, up to <code>times</code> attempts in total. If the last attempt also fails, let the exception propagate.</p></div>
+<textarea class="src" spellcheck="false">
+import functools
+
+def retry(times):
+    pass
+
+attempts = 0
+@retry(3)
+def flaky():
+    global attempts
+    attempts += 1
+    if attempts < 3:
+        raise ConnectionError("network blip")
+    return "connected"
+
+print(flaky(), "after", attempts, "attempts")   # connected after 3 attempts
+</textarea>
+    <script type="text/plain" class="test">
+n = {"c": 0}
+@retry(4)
+def ok_on_4th():
+    n["c"] += 1
+    if n["c"] < 4:
+        raise ValueError("no")
+    return "yes"
+assert ok_on_4th() == "yes" and n["c"] == 4, "retry(4) should allow up to 4 attempts."
+m = {"c": 0}
+@retry(2)
+def always_fails():
+    m["c"] += 1
+    raise KeyError("boom")
+try:
+    always_fails()
+    raise AssertionError("When every attempt fails, the last exception should be raised.")
+except KeyError:
+    pass
+assert m["c"] == 2, f"retry(2) should try exactly 2 times, it tried {m['c']}."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Three layers, like <code>repeat</code>. Inside the wrapper, loop <code>times</code> rounds with <code>try</code>/<code>except</code>; on the last round, <code>raise</code> again.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">import functools
+
+def retry(times):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(1, times + 1):
+                try:
+                    return func(*args, **kwargs)
+                except Exception:
+                    if attempt == times:
+                        raise
+        return wrapper
+    return decorator
+
+attempts = 0
+@retry(3)
+def flaky():
+    global attempts
+    attempts += 1
+    if attempts &lt; 3:
+        raise ConnectionError("network blip")
+    return "connected"
+
+print(flaky(), "after", attempts, "attempts")</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="0" data-explain="Correct: the @ line is shorthand for reassigning the name to decorator(function).">
+    <p class="q"><code>@log</code> above <code>def f():</code> is the same as...</p>
+    <button class="opt">f = log(f)</button>
+    <button class="opt">log(f()) on every call</button>
+    <button class="opt">f.log = True</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: without functools.wraps, the decorated function reports the wrapper's name and loses its docstring.">
+    <p class="q">You forget <code>functools.wraps</code>. What does <code>add.__name__</code> show?</p>
+    <button class="opt">add</button>
+    <button class="opt">wrapper</button>
+    <button class="opt">An AttributeError</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: repeat(3) runs first and must return the real decorator, which then wraps the function.">
+    <p class="q">Why does <code>@repeat(3)</code> need three nested functions?</p>
+    <button class="opt">Python requires at least three for any decorator</button>
+    <button class="opt">One for each repetition</button>
+    <button class="opt">repeat(3) is called first and must return a decorator</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>You finished the refresher</h2>
+  <ul>
+    <li>A decorator takes a function and returns a wrapped one. <code>@d</code> means <code>f = d(f)</code>.</li>
+    <li>Always use <code>*args, **kwargs</code>, return the result, and add <code>functools.wraps</code>.</li>
+    <li>Decorators with arguments add one more layer. Stacked decorators apply bottom up.</li>
+  </ul>
+  <p>From printing your first line to writing decorators: that is the core of the language. Good next steps: <b>exceptions</b> in depth (<code>try</code>/<code>except</code>/<code>finally</code>, custom errors), <b>files and modules</b>, <b>dataclasses</b> and <b>type hints</b>, then <b>pytest</b> to test what you build. Go back to the <a href="07-challenge-set.html">challenge set</a> or <a href="22-function-practice.html">10 function problems</a> any time to check you still have it.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

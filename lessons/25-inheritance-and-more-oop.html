@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inheritance and the rest of OOP | Python refresher</title>
+<meta name="description" content="Inheritance and super(), overriding, polymorphism, isinstance, encapsulation and name mangling, @property, @classmethod, @staticmethod and the MRO.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="25-inheritance-and-more-oop">
+
+<article class="doc">
+  <p class="crumb">Object-oriented Python</p>
+  <h1>Inheritance and the rest of OOP</h1>
+  <p class="lede">The four ideas OOP is known for, in Python terms: <b>inheritance</b> (reuse a class), <b>polymorphism</b> (one call, many behaviours), <b>encapsulation</b> (protect an object's data) and <b>abstraction</b> (hide the details behind a simple interface). Plus the three decorators every class-writer uses.</p>
+  <div class="meta"><span>15 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Inheritance: build on an existing class</h2>
+  <p><code>class Child(Parent):</code> gives the child every attribute and method of the parent. The child can add new ones and <b>override</b> (replace) existing ones. Use it for an &quot;is a&quot; relationship: a <code>MasalaChai</code> <b>is a</b> <code>Chai</code>.</p>
+  <div class="cell" data-cell data-title="Try it: inherit, extend, override">
+<textarea class="src" spellcheck="false">
+class Chai:
+    def __init__(self, sugar):
+        self.sugar = sugar
+    def describe(self):
+        return f"plain chai, {self.sugar} sugar"
+    def serve(self):
+        return "Serving: " + self.describe()
+
+class MasalaChai(Chai):
+    def __init__(self, sugar, spices):
+        super().__init__(sugar)        # let the parent set up its part
+        self.spices = spices           # then add the child's own data
+    def describe(self):                # override
+        return f"masala chai with {', '.join(self.spices)}, {self.sugar} sugar"
+
+print(Chai(1).serve())
+print(MasalaChai(2, ["ginger", "cardamom"]).serve())   # serve is inherited,
+                                                       # but it calls the new describe
+</textarea>
+  </div>
+  <div class="note"><p><b>super()</b> means &quot;the next class up the chain&quot;. Call <code>super().__init__(...)</code> in a child's <code>__init__</code>, or the parent's setup never runs and its attributes are missing. You can call any parent method this way: <code>super().describe()</code>.</p></div>
+  <div class="cell" data-cell data-title="Try it: isinstance and issubclass">
+<textarea class="src" spellcheck="false">
+class Chai: pass
+class MasalaChai(Chai): pass
+
+m = MasalaChai()
+print(isinstance(m, MasalaChai), isinstance(m, Chai))   # True True
+print(isinstance(Chai(), MasalaChai))                   # False
+print(issubclass(MasalaChai, Chai), issubclass(bool, int))  # True True
+print(MasalaChai.__mro__)          # the lookup chain, ending in object
+</textarea>
+  </div>
+
+  <h2>Polymorphism: same call, different behaviour</h2>
+  <p>Different classes can offer the same method name. Code that calls that method does not need to know which class it has. Python does not even require a shared parent: if it has the method, it works. This is called <b>duck typing</b>: &quot;if it walks like a duck and quacks like a duck...&quot;.</p>
+  <div class="cell" data-cell data-title="Try it: one loop, three behaviours">
+<textarea class="src" spellcheck="false">
+class UPI:
+    def pay(self, amount): return f"Paid Rs {amount} by UPI"
+class Card:
+    def pay(self, amount): return f"Paid Rs {amount} by card (+2% fee: {amount * 1.02:.2f})"
+class Cash:
+    def pay(self, amount): return f"Paid Rs {amount} in cash"
+
+for method in [UPI(), Card(), Cash()]:
+    print(method.pay(100))           # the caller never checks the type
+
+print(len("chai"), len([1, 2]), len({"a": 1}))   # built-in polymorphism
+</textarea>
+  </div>
+
+  <h2>Encapsulation: protecting data</h2>
+  <p>Python has no truly private attributes. It uses naming conventions instead, and trusts developers to respect them:</p>
+  <table>
+    <tr><th>Name</th><th>Meaning</th></tr>
+    <tr><td><code>balance</code></td><td>Public: part of the interface, use freely</td></tr>
+    <tr><td><code>_balance</code></td><td>Internal: &quot;please do not touch from outside&quot;. Only a convention</td></tr>
+    <tr><td><code>__balance</code></td><td>Name-mangled: Python renames it to <code>_ClassName__balance</code>, so subclasses cannot clash with it by accident. Still reachable, just awkward</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: underscores">
+<textarea class="src" spellcheck="false">
+class Wallet:
+    def __init__(self):
+        self._notes = "internal"
+        self.__pin = 1234
+
+w = Wallet()
+print(w._notes)                  # works, but you were warned
+try:
+    print(w.__pin)
+except AttributeError as e:
+    print("AttributeError:", e)
+print(w._Wallet__pin)            # the mangled name: not secret, just hidden
+</textarea>
+  </div>
+
+  <h3>@property: attributes with rules</h3>
+  <p>A property looks like a plain attribute from outside, but runs a method when read or set. Start with public attributes; switch to a property later when you need validation or a computed value, and no calling code has to change.</p>
+  <div class="cell" data-cell data-title="Try it: a validated attribute and a computed one">
+<textarea class="src" spellcheck="false">
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price               # goes through the setter below
+
+    @property
+    def price(self):                     # read: p.price
+        return self._price
+
+    @price.setter
+    def price(self, value):              # write: p.price = value
+        if value < 0:
+            raise ValueError("price cannot be negative")
+        self._price = value
+
+    @property
+    def price_with_gst(self):            # computed, read-only
+        return round(self._price * 1.18, 2)
+
+p = Product("Chai", 20)
+print(p.price, p.price_with_gst)         # 20 23.6
+p.price = 25
+print(p.price_with_gst)                  # 29.5
+try:
+    p.price = -5
+except ValueError as e:
+    print("ValueError:", e)
+</textarea>
+  </div>
+
+  <h2>@classmethod and @staticmethod</h2>
+  <table>
+    <tr><th>Kind</th><th>First parameter</th><th>Typical use</th></tr>
+    <tr><td>Normal method</td><td><code>self</code>: the object</td><td>Work with one object's data</td></tr>
+    <tr><td><code>@classmethod</code></td><td><code>cls</code>: the class</td><td>Alternative constructors: <code>Date.from_string("2026-11-18")</code></td></tr>
+    <tr><td><code>@staticmethod</code></td><td>None</td><td>A helper that belongs with the class but needs neither</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: three kinds of method">
+<textarea class="src" spellcheck="false">
+class Order:
+    def __init__(self, item, qty):
+        self.item, self.qty = item, qty
+
+    @classmethod
+    def from_text(cls, text):            # "chai x3" -> Order("chai", 3)
+        item, qty = text.split(" x")
+        return cls(item, int(qty))       # cls, not Order: works for subclasses too
+
+    @staticmethod
+    def is_valid_qty(qty):
+        return 1 <= qty <= 20
+
+    def __repr__(self):
+        return f"Order({self.item!r}, {self.qty})"
+
+print(Order.from_text("chai x3"))
+print(Order.is_valid_qty(50))
+</textarea>
+  </div>
+
+  <h2>Abstraction and multiple inheritance, briefly</h2>
+  <p><b>Abstraction</b> means the caller uses a simple interface and does not care how it works inside. An <b>abstract base class</b> enforces that every subclass provides the interface:</p>
+  <div class="cell" data-cell data-title="Try it: an abstract base class">
+<textarea class="src" spellcheck="false">
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self): ...
+
+class Square(Shape):
+    def __init__(self, side): self.side = side
+    def area(self): return self.side ** 2
+
+print(Square(3).area())
+try:
+    Shape()
+except TypeError as e:
+    print("TypeError:", e)
+</textarea>
+  </div>
+  <p>A class can also inherit from several parents: <code>class C(A, B):</code>. Python then searches for methods in the <b>MRO</b> (method resolution order): the class itself, then <code>A</code>, then <code>B</code>, then <code>object</code>. Use it sparingly, mostly for small add-on &quot;mixin&quot; classes.</p>
+  <div class="cell" data-cell data-title="Try it: the MRO decides">
+<textarea class="src" spellcheck="false">
+class A:
+    def hello(self): return "from A"
+class B:
+    def hello(self): return "from B"
+class C(A, B): pass
+
+print(C().hello())                      # from A: A comes first
+print([k.__name__ for k in C.__mro__])  # ['C', 'A', 'B', 'object']
+</textarea>
+  </div>
+  <div class="tip"><p><b>Composition over inheritance.</b> If the relationship is &quot;has a&quot; rather than &quot;is a&quot; (a <code>Car</code> <b>has an</b> <code>Engine</code>), store the other object as an attribute instead of inheriting from it. Deep inheritance trees are hard to change.</p></div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="oop2-1" data-title="Challenge 1: Animals that speak">
+    <div class="task"><p>Make <code>Dog</code> and <code>Cat</code> subclasses of <code>Animal</code>. Each overrides <code>sound()</code> to return <code>"Woof"</code> and <code>"Meow"</code>. The inherited <code>speak()</code> should then print lines like <code>Bruno says Woof</code>.</p></div>
+<textarea class="src" spellcheck="false">
+class Animal:
+    def __init__(self, name):
+        self.name = name
+    def sound(self):
+        return "..."
+    def speak(self):
+        return f"{self.name} says {self.sound()}"
+
+# your classes here
+
+for pet in [Dog("Bruno"), Cat("Mittens")]:
+    print(pet.speak())
+</textarea>
+    <script type="text/plain" class="test">
+assert issubclass(Dog, Animal) and issubclass(Cat, Animal), "Dog and Cat should inherit from Animal."
+assert Dog("Rex").speak() == "Rex says Woof", "Dog('Rex').speak() should be 'Rex says Woof'."
+assert Cat("Tom").speak() == "Tom says Meow", "Cat('Tom').speak() should be 'Tom says Meow'."
+assert "speak" not in vars(Dog) and "speak" not in vars(Cat), "Do not rewrite speak(): inherit it and override sound() only."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def sound(self):
+        return "..."
+    def speak(self):
+        return f"{self.name} says {self.sound()}"
+
+class Dog(Animal):
+    def sound(self):
+        return "Woof"
+
+class Cat(Animal):
+    def sound(self):
+        return "Meow"
+
+for pet in [Dog("Bruno"), Cat("Mittens")]:
+    print(pet.speak())</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="oop2-2" data-title="Challenge 2: super() in a subclass">
+    <div class="task"><p>Write <code>Manager(name, salary, team_size)</code> that inherits from <code>Employee</code>, uses <code>super().__init__</code> for name and salary, stores <code>team_size</code>, and overrides <code>annual_bonus()</code> to return the parent's bonus plus 1000 per team member.</p></div>
+<textarea class="src" spellcheck="false">
+class Employee:
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary
+    def annual_bonus(self):
+        return self.salary * 0.10
+
+# your Manager class here
+
+m = Manager("Asha", 100000, 5)
+print(m.name, m.annual_bonus())   # Asha 15000.0
+</textarea>
+    <script type="text/plain" class="test">
+assert issubclass(Manager, Employee), "Manager should inherit from Employee."
+m = Manager("Z", 50000, 2)
+assert (m.name, m.salary, m.team_size) == ("Z", 50000, 2), "Manager should have name, salary and team_size."
+assert m.annual_bonus() == 7000, "Manager('Z', 50000, 2).annual_bonus() should be 5000 + 2000 = 7000."
+assert "super()" in _code, "Use super() to reuse Employee's code."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">class Employee:
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary
+    def annual_bonus(self):
+        return self.salary * 0.10
+
+class Manager(Employee):
+    def __init__(self, name, salary, team_size):
+        super().__init__(name, salary)
+        self.team_size = team_size
+
+    def annual_bonus(self):
+        return super().annual_bonus() + 1000 * self.team_size
+
+m = Manager("Asha", 100000, 5)
+print(m.name, m.annual_bonus())</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="oop2-3" data-title="Challenge 3: A safe temperature">
+    <div class="task"><p>Give <code>Thermostat</code> a <code>celsius</code> property whose setter raises <code>ValueError</code> below -273.15, and a read-only <code>fahrenheit</code> property (<code>celsius * 9 / 5 + 32</code>).</p></div>
+<textarea class="src" spellcheck="false">
+class Thermostat:
+    def __init__(self, celsius):
+        self.celsius = celsius
+
+t = Thermostat(25)
+print(t.fahrenheit)   # 77.0
+</textarea>
+    <script type="text/plain" class="test">
+assert isinstance(vars(Thermostat).get("celsius"), property), "celsius should be a property."
+t = Thermostat(100)
+assert t.fahrenheit == 212, "Thermostat(100).fahrenheit should be 212."
+t.celsius = 0
+assert t.fahrenheit == 32, "After setting celsius = 0, fahrenheit should be 32."
+try:
+    t.celsius = -300
+    raise AssertionError("Setting celsius to -300 should raise ValueError.")
+except ValueError:
+    pass
+try:
+    Thermostat(-500)
+    raise AssertionError("Thermostat(-500) should raise ValueError too: let __init__ use the setter.")
+except ValueError:
+    pass
+try:
+    t.fahrenheit = 50
+    raise AssertionError("fahrenheit should be read-only.")
+except AttributeError:
+    pass
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">class Thermostat:
+    def __init__(self, celsius):
+        self.celsius = celsius
+
+    @property
+    def celsius(self):
+        return self._celsius
+
+    @celsius.setter
+    def celsius(self, value):
+        if value &lt; -273.15:
+            raise ValueError("below absolute zero")
+        self._celsius = value
+
+    @property
+    def fahrenheit(self):
+        return self._celsius * 9 / 5 + 32</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: without super().__init__(), the parent's __init__ never runs, so its attributes are never set.">
+    <p class="q">A child class defines its own <code>__init__</code> and forgets <code>super().__init__()</code>. What happens?</p>
+    <button class="opt">Python calls the parent's __init__ automatically</button>
+    <button class="opt">The parent's attributes are never set</button>
+    <button class="opt">A SyntaxError</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: double leading underscores trigger name mangling to _ClassName__name. It prevents accidental clashes; it is not real privacy.">
+    <p class="q">What does <code>self.__pin</code> really do?</p>
+    <button class="opt">Renames the attribute to _ClassName__pin</button>
+    <button class="opt">Makes it truly private and unreachable</button>
+    <button class="opt">Makes it a class attribute</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: a classmethod receives the class as cls, which makes it ideal for alternative constructors.">
+    <p class="q">Which is the best fit for <code>User.from_json(text)</code>, which builds a new <code>User</code>?</p>
+    <button class="opt">A @staticmethod</button>
+    <button class="opt">A @property</button>
+    <button class="opt">A @classmethod</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li><code>class Child(Parent):</code> inherits everything; override what differs; call the parent with <code>super()</code>.</li>
+    <li>Polymorphism: different classes, same method name. Python only cares that the method exists.</li>
+    <li><code>_name</code> means internal; <code>__name</code> is name-mangled. Neither is truly private.</li>
+    <li><code>@property</code> adds validation or computed values behind plain attribute syntax.</li>
+    <li><code>@classmethod</code> gets the class (alternative constructors); <code>@staticmethod</code> gets nothing.</li>
+    <li>Abstract base classes enforce an interface; the MRO decides lookup in multiple inheritance.</li>
+  </ul>
+  <p>Next: <a href="26-decorators.html">Decorators</a>, the last page. You have already used three of them on this page.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Python refresher
 
-A short, interactive Python refresher: seven 10-minute pages with runnable code, challenges that check your answer, and a quick quiz each. No build step, no server: plain HTML, CSS and JavaScript.
+An interactive Python refresher: 26 short pages, from installing Python to functions, closures, OOP and decorators. Each page has runnable code, challenges that check your answer, and a quick quiz. No build step, no server: plain HTML, CSS and JavaScript.
 
 ## Open it on your computer
 
@@ -24,7 +24,7 @@ assets/
   site.js                     sidebar, "on this page", progress, theme, tabs, quizzes, checklists
   runner.js                   Run buttons, challenges, REPL (real Python via Pyodide)
   anim/memory.js              the names / objects / garbage-collection animation (lesson 10)
-lessons/                      one HTML file per page (01 to 10)
+lessons/                      one HTML file per page (01 to 26)
 templates/lesson-template.html   copy this to start a new page
 ```
 

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scope and closures | Python refresher</title>
+<meta name="description" content="Where Python looks up names (LEGB), local vs global, UnboundLocalError, global and nonlocal, nested functions and closures.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="23-scope-and-closures">
+
+<article class="doc">
+  <p class="crumb">Functions</p>
+  <h1>Scope and closures</h1>
+  <p class="lede"><b>Scope</b> answers one question: when your code uses a name, where does Python look for it? Get this right and two famous errors disappear. Then comes the payoff: <b>closures</b>, functions that remember the variables around them, which is exactly what decorators are built on.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>LEGB: the lookup order</h2>
+  <p>Python searches for a name in four places, in this order, and uses the first match:</p>
+  <div class="flow" aria-label="LEGB lookup order">
+    <div class="hot"><b>L: Local</b>Inside the current function</div><span>&rarr;</span>
+    <div><b>E: Enclosing</b>Inside any function that wraps this one</div><span>&rarr;</span>
+    <div><b>G: Global</b>At the top level of the file (module)</div><span>&rarr;</span>
+    <div><b>B: Built-in</b>Python's own names: <code>print</code>, <code>len</code>, <code>sum</code>...</div>
+  </div>
+  <p>If none has it, you get <code>NameError</code>. Note that only functions (and classes, and modules) make a new scope. An <code>if</code> or <code>for</code> block does <b>not</b>: a variable created inside a loop still exists after it.</p>
+  <div class="cell" data-cell data-title="Try it: the same name at three levels">
+<textarea class="src" spellcheck="false">
+drink = "water"                  # global
+
+def outer():
+    drink = "chai"               # enclosing (for inner)
+    def inner():
+        drink = "coffee"         # local
+        print("inner sees:", drink)
+    inner()
+    print("outer sees:", drink)
+
+outer()
+print("global sees:", drink)
+
+for i in range(3):
+    pass
+print("i after the loop:", i)    # 2: loops do not create a scope
+</textarea>
+  </div>
+
+  <h2>Reading vs assigning</h2>
+  <p>A function can <b>read</b> a global name freely. But if a function <b>assigns</b> to a name anywhere in its body, Python decides at compile time that the name is local for the <b>whole</b> function. Reading it before the assignment then fails.</p>
+  <div class="cell" data-cell data-title="Break it: UnboundLocalError">
+<textarea class="src" spellcheck="false">
+count = 0
+
+def show():
+    print(count)        # reading a global: fine
+
+def increment():
+    count += 1          # assignment makes count local, but it has no value yet
+
+show()
+increment()             # UnboundLocalError
+</textarea>
+  </div>
+  <p>Mutating an object is not assigning a name, so this works without any keyword: <code>items.append(x)</code> changes the global list, because the name <code>items</code> is only read.</p>
+
+  <h2>global and nonlocal</h2>
+  <table>
+    <tr><th>Keyword</th><th>Means</th><th>Use it...</th></tr>
+    <tr><td><code>global x</code></td><td>Assignments to <code>x</code> in this function change the module-level <code>x</code></td><td>Rarely. Prefer passing values in and returning them</td></tr>
+    <tr><td><code>nonlocal x</code></td><td>Assignments to <code>x</code> change the <code>x</code> in the nearest enclosing function</td><td>In closures that keep state, like counters</td></tr>
+  </table>
+  <div class="cell" data-cell data-title="Try it: global and nonlocal">
+<textarea class="src" spellcheck="false">
+visits = 0
+def visit():
+    global visits
+    visits += 1
+
+visit(); visit()
+print("visits:", visits)        # 2
+
+def outer():
+    level = "outer"
+    def inner():
+        nonlocal level
+        level = "changed by inner"
+    inner()
+    return level
+
+print(outer())                  # changed by inner
+</textarea>
+  </div>
+  <div class="warn"><p><b>Why avoid global?</b> Any function can change it at any time, so when the value is wrong you have to read the whole program to find out who changed it. A function that takes inputs and returns outputs can be understood and tested on its own.</p></div>
+
+  <h2>Closures: functions that remember</h2>
+  <p>A function defined inside another function can use the outer function's variables. If the outer function <b>returns</b> the inner one, those variables do not disappear when the outer call ends: the inner function carries them along. That function plus its remembered variables is a <b>closure</b>.</p>
+  <div class="cell" data-cell data-title="Try it: a function factory">
+<textarea class="src" spellcheck="false">
+def make_multiplier(factor):
+    def multiply(n):
+        return n * factor        # factor comes from the enclosing scope
+    return multiply              # return the function, do not call it
+
+double = make_multiplier(2)
+triple = make_multiplier(3)
+print(double(5), triple(5))      # 10 15
+
+# The remembered value lives in a "cell" attached to the function:
+print(double.__closure__[0].cell_contents)   # 2
+</textarea>
+  </div>
+  <p>Add <code>nonlocal</code> and a closure can keep <b>private state</b> between calls, with no global variable and no class:</p>
+  <div class="cell" data-cell data-title="Try it: a counter with private state">
+<textarea class="src" spellcheck="false">
+def make_counter():
+    count = 0
+    def counter():
+        nonlocal count
+        count += 1
+        return count
+    return counter
+
+a = make_counter()
+b = make_counter()          # a separate counter with its own count
+print(a(), a(), a())        # 1 2 3
+print(b())                  # 1
+</textarea>
+  </div>
+
+  <h3>The late-binding trap</h3>
+  <p>Closures remember <b>variables</b>, not values. A closure made inside a loop sees the variable's value at the time it is <b>called</b>, which is usually the last one.</p>
+  <div class="cell" data-cell data-title="Break it: every function says 2">
+<textarea class="src" spellcheck="false">
+funcs = []
+for i in range(3):
+    funcs.append(lambda: i)
+print([f() for f in funcs])      # [2, 2, 2], not [0, 1, 2]
+
+funcs = []
+for i in range(3):
+    funcs.append(lambda i=i: i)  # fix: a default value is evaluated right now
+print([f() for f in funcs])      # [0, 1, 2]
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="scope-1" data-title="Challenge 1: Fix the score">
+    <div class="task"><p><code>add_points</code> crashes with <code>UnboundLocalError</code>. Fix it <b>without</b> <code>global</code>: make it take the current score and return the new one, then use it so the program prints <code>15</code>.</p></div>
+<textarea class="src" spellcheck="false">
+score = 0
+
+def add_points(points):
+    score += points
+
+add_points(10)
+add_points(5)
+print(score)
+</textarea>
+    <script type="text/plain" class="test">
+assert "global" not in _code, "Solve it without the global keyword."
+assert _out.strip() == "15", "The program should print 15."
+assert add_points(3, 4) == 7, "add_points(score, points) should return score + points."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">Change the signature to <code>add_points(score, points)</code> and call it as <code>score = add_points(score, 10)</code>.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">score = 0
+
+def add_points(score, points):
+    return score + points
+
+score = add_points(score, 10)
+score = add_points(score, 5)
+print(score)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="scope-2" data-title="Challenge 2: A greeting factory">
+    <div class="task"><p>Write <code>make_greeter(greeting)</code> that returns a function. The returned function takes a name and returns <code>"&lt;greeting&gt;, &lt;name&gt;!"</code>.</p></div>
+<textarea class="src" spellcheck="false">
+def make_greeter(greeting):
+    pass
+
+hello = make_greeter("Hello")
+namaste = make_greeter("Namaste")
+print(hello("Asha"))      # Hello, Asha!
+print(namaste("Ravi"))    # Namaste, Ravi!
+</textarea>
+    <script type="text/plain" class="test">
+h = make_greeter("Hi")
+assert callable(h), "make_greeter should return a function."
+assert h("Bo") == "Hi, Bo!", "make_greeter('Hi')('Bo') should return 'Hi, Bo!'."
+assert make_greeter("Yo")("Al") == "Yo, Al!", "Each greeter should remember its own greeting."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def make_greeter(greeting):
+    def greet(name):
+        return f"{greeting}, {name}!"
+    return greet</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="scope-3" data-title="Challenge 3: A running total">
+    <div class="task"><p>Write <code>make_accumulator()</code>. It returns a function that adds each number it is given to a private total and returns the total so far.</p></div>
+<textarea class="src" spellcheck="false">
+def make_accumulator():
+    pass
+
+add = make_accumulator()
+print(add(10))   # 10
+print(add(5))    # 15
+print(add(20))   # 35
+</textarea>
+    <script type="text/plain" class="test">
+a = make_accumulator(); b = make_accumulator()
+assert a(1) == 1 and a(2) == 3 and a(10) == 13, "Each call should return the running total."
+assert b(5) == 5, "Every accumulator should have its own total."
+assert "global" not in _code, "Keep the total inside the closure, not in a global."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def make_accumulator():
+    total = 0
+    def add(n):
+        nonlocal total
+        total += n
+        return total
+    return add</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="1" data-explain="Correct: Local, Enclosing, Global, Built-in.">
+    <p class="q">In what order does Python look up a name?</p>
+    <button class="opt">Global, Local, Built-in, Enclosing</button>
+    <button class="opt">Local, Enclosing, Global, Built-in</button>
+    <button class="opt">Built-in, Global, Enclosing, Local</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="Correct: any assignment to x in the function makes x local everywhere in that function, so reading it first fails.">
+    <p class="q">Why does <code>x += 1</code> inside a function raise UnboundLocalError when <code>x</code> is a global?</p>
+    <button class="opt">The assignment makes x local to the whole function</button>
+    <button class="opt">Globals are read-only in Python</button>
+    <button class="opt">+= does not work on integers</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: a closure is an inner function that keeps access to variables from its enclosing function after that function has returned.">
+    <p class="q">What is a closure?</p>
+    <button class="opt">A function with no parameters</button>
+    <button class="opt">A function that closes files automatically</button>
+    <button class="opt">An inner function that remembers variables from its enclosing function</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Names are looked up in LEGB order. Only functions, classes and modules create scopes.</li>
+    <li>Assigning to a name inside a function makes it local for the whole function.</li>
+    <li><code>global</code> and <code>nonlocal</code> let a function rebind an outer name. Use <code>nonlocal</code> in closures; avoid <code>global</code>.</li>
+    <li>A closure is a returned inner function that keeps its enclosing variables alive.</li>
+    <li>Closures capture variables, not values: watch out inside loops.</li>
+  </ul>
+  <p>Next: <a href="24-classes-and-objects.html">Classes and objects</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>

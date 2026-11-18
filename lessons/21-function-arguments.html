@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Function arguments in depth | Python refresher</title>
+<meta name="description" content="Positional and keyword arguments, defaults and the mutable default trap, *args and **kwargs, unpacking, keyword-only arguments and lambda.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-root="../" data-lesson="21-function-arguments">
+
+<article class="doc">
+  <p class="crumb">Functions</p>
+  <h1>Function arguments in depth</h1>
+  <p class="lede">Python gives you a lot of control over how a function is called: by position or by name, with defaults, with any number of values. Here is the whole toolkit, plus the one default-value trap that bites almost everybody once.</p>
+  <div class="meta"><span>10 min</span><span>3 challenges</span><span>3-question quiz</span></div>
+
+  <h2>Positional and keyword arguments</h2>
+  <p>Arguments are matched to parameters <b>by position</b>, unless you name them. Named (keyword) arguments can come in any order and make calls easier to read.</p>
+  <div class="cell" data-cell data-title="Try it: by position and by name">
+<textarea class="src" spellcheck="false">
+def make_chai(sugar, milk, size):
+    print(f"{size} chai, sugar: {sugar}, milk: {milk}")
+
+make_chai(2, True, "small")                  # by position
+make_chai(size="large", sugar=1, milk=False) # by name, any order
+make_chai(2, size="medium", milk=True)       # mixed: positional first
+# make_chai(sugar=2, True, "small")          # SyntaxError: positional after keyword
+</textarea>
+  </div>
+
+  <h2>Default values</h2>
+  <p>Give a parameter a default and the caller may leave it out. Parameters with defaults must come after the ones without.</p>
+  <div class="cell" data-cell data-title="Try it: defaults">
+<textarea class="src" spellcheck="false">
+def greet(name, greeting="Hello", punctuation="!"):
+    return f"{greeting}, {name}{punctuation}"
+
+print(greet("Asha"))
+print(greet("Ravi", "Namaste"))
+print(greet("Meera", punctuation="?"))   # skip one default, set another
+</textarea>
+  </div>
+
+  <h3>The mutable default trap</h3>
+  <p>Default values are created <b>once</b>, when the <code>def</code> line runs, not on every call. With an immutable default (a number, a string, <code>None</code>) that never matters. With a list or dict, every call that uses the default shares the <b>same object</b>.</p>
+  <div class="cell" data-cell data-title="Break it: the list that remembers">
+<textarea class="src" spellcheck="false">
+def add_item(item, basket=[]):     # one list, created once
+    basket.append(item)
+    return basket
+
+print(add_item("tea"))     # ['tea']
+print(add_item("milk"))    # ['tea', 'milk']  (surprise!)
+
+def add_item_fixed(item, basket=None):
+    if basket is None:     # make a fresh list on every call
+        basket = []
+    basket.append(item)
+    return basket
+
+print(add_item_fixed("tea"))
+print(add_item_fixed("milk"))
+</textarea>
+  </div>
+  <div class="warn"><p><b>Rule:</b> never use a list, dict or set as a default value. Use <code>None</code> and create the object inside the function. Linters flag this for a reason, and it is a favourite interview question.</p></div>
+
+  <h2>*args: any number of positional arguments</h2>
+  <p>A parameter with one star collects all the extra positional arguments into a <b>tuple</b>. The name <code>args</code> is only a convention; the star is what matters.</p>
+  <div class="cell" data-cell data-title="Try it: *args">
+<textarea class="src" spellcheck="false">
+def total(*numbers):
+    print("got the tuple", numbers)
+    return sum(numbers)
+
+print(total(1, 2, 3))
+print(total(10))
+print(total())                     # an empty tuple is fine
+</textarea>
+  </div>
+
+  <h2>**kwargs: any number of keyword arguments</h2>
+  <p>Two stars collect the extra <b>named</b> arguments into a <b>dict</b>.</p>
+  <div class="cell" data-cell data-title="Try it: **kwargs">
+<textarea class="src" spellcheck="false">
+def profile(name, **details):
+    print(name)
+    for key, value in details.items():
+        print(f"  {key}: {value}")
+
+profile("Asha", role="Engineer", city="Pune", stack="Python")
+</textarea>
+  </div>
+  <p>The full order of parameters is: normal ones, then <code>*args</code>, then keyword-only ones, then <code>**kwargs</code>. Anything after <code>*args</code> (or after a bare <code>*</code>) can only be passed by name. That is useful for flags you want to be explicit at the call site:</p>
+  <div class="cell" data-cell data-title="Try it: the full signature">
+<textarea class="src" spellcheck="false">
+def log(level, *messages, sep=" | ", **extra):
+    line = sep.join(messages)
+    if extra:
+        line += f" {extra}"
+    print(f"[{level}] {line}")
+
+log("INFO", "server started", "port 8000")
+log("WARN", "disk low", sep=" / ", free_gb=2)
+
+def connect(host, *, timeout=10):   # bare * : timeout is keyword-only
+    print(host, timeout)
+
+connect("db.local", timeout=3)
+# connect("db.local", 3)            # TypeError: takes 1 positional argument
+</textarea>
+  </div>
+
+  <h2>Unpacking at the call: * and ** the other way round</h2>
+  <p>In a <b>call</b>, the stars do the opposite: <code>*</code> spreads a list or tuple into positional arguments, and <code>**</code> spreads a dict into keyword arguments.</p>
+  <div class="cell" data-cell data-title="Try it: spread arguments">
+<textarea class="src" spellcheck="false">
+def make_chai(sugar, milk, size):
+    print(f"{size} chai, {sugar} sugar, milk: {milk}")
+
+order = [2, True, "small"]
+make_chai(*order)                 # same as make_chai(2, True, "small")
+
+settings = {"sugar": 0, "milk": False, "size": "large"}
+make_chai(**settings)             # same as make_chai(sugar=0, ...)
+
+print(*[1, 2, 3], sep=" - ")      # works with any function, print included
+</textarea>
+  </div>
+
+  <h2>lambda: tiny one-line functions</h2>
+  <p><code>lambda params: expression</code> makes a small unnamed function. Use it where you need a short function only once, most often as the <code>key</code> for sorting, <code>min</code> or <code>max</code>. If it needs a name or more than one line, write a normal <code>def</code>.</p>
+  <div class="cell" data-cell data-title="Try it: lambda as a sort key">
+<textarea class="src" spellcheck="false">
+cube = lambda x: x ** 3
+print(cube(3))                                   # 27
+
+menu = [("samosa", 15), ("chai", 20), ("vada pav", 25), ("idli", 30)]
+print(sorted(menu, key=lambda item: item[1], reverse=True))  # by price, high to low
+print(min(menu, key=lambda item: item[1]))       # cheapest item
+print(list(map(lambda p: p[1] * 2, menu)))       # double every price
+print(list(filter(lambda p: p[1] < 25, menu)))   # items under 25
+</textarea>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="cell" data-cell data-challenge="args-1" data-title="Challenge 1: average(*numbers)">
+    <div class="task"><p>Write <code>average(*numbers)</code> that returns the average of any number of arguments, and <code>0</code> if there are none.</p></div>
+<textarea class="src" spellcheck="false">
+def average(*numbers):
+    pass   # your code here
+
+print(average(2, 4, 9))   # 5.0
+print(average())          # 0
+</textarea>
+    <script type="text/plain" class="test">
+assert average(2, 4, 9) == 5, "average(2, 4, 9) should be 5.0."
+assert average(10) == 10, "average(10) should be 10."
+assert average() == 0, "average() with no arguments should return 0."
+assert average(1, 2) == 1.5, "average(1, 2) should be 1.5."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def average(*numbers):
+    if not numbers:
+        return 0
+    return sum(numbers) / len(numbers)</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="args-2" data-title="Challenge 2: Fix the shared list">
+    <div class="task"><p><code>register</code> is supposed to give every new team its own member list, but the second team gets the first team's members too. Fix it.</p></div>
+<textarea class="src" spellcheck="false">
+def register(member, team=[]):
+    team.append(member)
+    return team
+
+print(register("Asha"))    # ['Asha']
+print(register("Ravi"))    # should be ['Ravi']
+</textarea>
+    <script type="text/plain" class="test">
+a = register("x"); b = register("y")
+assert a == ["x"] and b == ["y"], "Each call without a team should start with a new, empty list."
+t = ["boss"]
+assert register("z", t) == ["boss", "z"], "Passing an existing list should still append to it."
+    </script>
+    <details><summary>Show solution</summary><pre><code class="py">def register(member, team=None):
+    if team is None:
+        team = []
+    team.append(member)
+    return team</code></pre></details>
+  </div>
+
+  <div class="cell" data-cell data-challenge="args-3" data-title="Challenge 3: Sort by length">
+    <div class="task"><p>Print <code>words</code> sorted from the shortest to the longest, using <code>sorted</code> with a <code>lambda</code> as the key.</p></div>
+<textarea class="src" spellcheck="false">
+words = ["banana", "fig", "apple", "kiwi"]
+# your code here
+</textarea>
+    <script type="text/plain" class="test">
+assert _out.strip() == "['fig', 'kiwi', 'apple', 'banana']", "Expected ['fig', 'kiwi', 'apple', 'banana']."
+assert "lambda" in _code and "sorted" in _code, "Use sorted() with a lambda key."
+    </script>
+    <details><summary>Hint</summary><p style="margin:6px 0 0">The key function gets one word and returns what to sort by: its length.</p></details>
+    <details><summary>Show solution</summary><pre><code class="py">words = ["banana", "fig", "apple", "kiwi"]
+print(sorted(words, key=lambda w: len(w)))</code></pre></details>
+  </div>
+
+  <h2>Quick quiz</h2>
+  <div class="quiz" data-answer="0" data-explain="Correct: *args collects extra positional arguments into a tuple; **kwargs collects keyword arguments into a dict.">
+    <p class="q">Inside the function, what types are <code>args</code> and <code>kwargs</code>?</p>
+    <button class="opt">tuple and dict</button>
+    <button class="opt">list and dict</button>
+    <button class="opt">list and list</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Correct: the default list is created once when def runs, and every call shares it.">
+    <p class="q">Why is <code>def f(x, items=[])</code> a bug?</p>
+    <button class="opt">Lists are not allowed as defaults</button>
+    <button class="opt">The list is copied on every call, which is slow</button>
+    <button class="opt">One list is created once and shared by every call</button>
+    <p class="fb"></p>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Correct: in a call, * spreads the list into separate positional arguments.">
+    <p class="q">What does <code>f(*[1, 2, 3])</code> do?</p>
+    <button class="opt">Passes one argument: the list</button>
+    <button class="opt">Calls f(1, 2, 3)</button>
+    <button class="opt">Multiplies the list</button>
+    <p class="fb"></p>
+  </div>
+
+  <h2>Recap</h2>
+  <ul>
+    <li>Arguments match by position unless named. Positional ones come first in a call.</li>
+    <li>Defaults are evaluated once. Use <code>None</code> instead of a list, dict or set.</li>
+    <li><code>*args</code> collects a tuple, <code>**kwargs</code> collects a dict. After <code>*</code>, parameters are keyword-only.</li>
+    <li>In a call, <code>*</code> and <code>**</code> spread a sequence or a dict into arguments.</li>
+    <li><code>lambda</code> is for short throwaway functions, mostly sort keys.</li>
+  </ul>
+  <p>Next: <a href="22-function-practice.html">10 function problems</a>.</p>
+</article>
+
+<script src="../assets/lessons.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/runner.js"></script>
+</body>
+</html>
